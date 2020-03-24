@@ -24,20 +24,44 @@ public class Fighter implements Person {
     List<Record> records = new ArrayList<>();
 
     private void calculateRecordByFights() {
+        records.clear();
         fights.forEach(fight -> {
             Record lastRecord = null;
-            if (this.records.size() != 0) {
-                 lastRecord = records.get(records.size() - 1);
+            if (records.size() != 0) {
+                lastRecord = records.get(records.size() - 1);
             }
-
             this.addRecord(fight, lastRecord);
         });
     }
 
-    public Record addRecord(Fight fight, Record lastRecord){
+    public Record addRecord(Fight fight, Record lastRecord) {
 
         var currentRecord = new Record(this, lastRecord);
-        // TODO: implement add figth result to current event
+
+        int winsKo = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.WINS_KO) ? 1 : 0;
+        int winsSub = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.WINS_SUB) ? 1 : 0;
+        int winsDec = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.WINS_DEC) ? 1 : 0;
+        int winsOther = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.WINS_OTHER) ? 1 : 0;
+        int lossesKo = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.LOSSES_KO) ? 1 : 0;
+        int lossesSub = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.LOSSES_SUB) ? 1 : 0;
+        int lossesDec = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.LOSSES_DEC) ? 1 : 0;
+        int lossesOther = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.LOSSES_OTHER) ? 1 : 0;
+        int draws = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.DRAWS) ? 1 : 0;
+        int nc = (RecordNumberType.defineRecordNumberType(fight, this) == RecordNumberType.NO_CONTEST) ? 1 : 0;
+
+        currentRecord.addWinsKo(winsKo)
+                .addWinsSub(winsSub)
+                .addWinsDec(winsDec)
+                .addWinsOther(winsOther)
+                .addLossesKo(lossesKo)
+                .addLossesSub(lossesKo)
+                .addLossesSub(lossesSub)
+                .addLossesDec(lossesDec)
+                .addLossesOther(lossesOther)
+                .addDraws(draws)
+                .addNc(nc);
+
+        this.records.add(currentRecord);
         return currentRecord;
     }
 

@@ -51,58 +51,77 @@ public class Record {
         return this;
     }
 
-    public Record setWinsKo(int winsKo) {
-        this.winsKo = winsKo;
+    public Record addWinsKo(int winsKo) {
+        this.winsKo += winsKo;
+        calculateTotalWins();
         return this;
     }
 
-    public Record setWinsSub(int winsSub) {
-        this.winsSub = winsSub;
+    public Record addWinsSub(int winsSub) {
+        this.winsSub += winsSub;
+        calculateTotalWins();
         return this;
     }
 
-    public Record setWinsDec(int winsDec) {
-        this.winsDec = winsDec;
+    public Record addWinsDec(int winsDec) {
+        this.winsDec += winsDec;
+        calculateTotalWins();
         return this;
     }
 
-    public Record setWinsOther(int winsOther) {
-        this.winsOther = winsOther;
+    public Record addWinsOther(int winsOther) {
+        this.winsOther += winsOther;
+        calculateTotalWins();
         return this;
     }
 
-    public Record setLosses(int losses) {
-        this.losses = losses;
+    public Record addLosses(int losses) {
+        this.losses += losses;
         return this;
     }
 
-    public Record setLossesKo(int lossesKo) {
-        this.lossesKo = lossesKo;
+    public Record addLossesKo(int lossesKo) {
+        this.lossesKo += lossesKo;
+        calculateTotalLosses();
         return this;
     }
 
-    public Record setLossesSub(int lossesSub) {
-        this.lossesSub = lossesSub;
+    public Record addLossesSub(int lossesSub) {
+        this.lossesSub += lossesSub;
+        calculateTotalLosses();
         return this;
     }
 
-    public Record setLossesDec(int lossesDec) {
-        this.lossesDec = lossesDec;
+    public Record addLossesDec(int lossesDec) {
+        this.lossesDec += lossesDec;
+        calculateTotalLosses();
         return this;
     }
 
-    public Record setLossesOther(int lossesOther) {
-        this.lossesOther = lossesOther;
+    public Record addLossesOther(int lossesOther) {
+        this.lossesOther += lossesOther;
+        calculateTotalLosses();
         return this;
     }
 
-    public Record setDraws(int draws) {
-        this.draws = draws;
+    public Record addDraws(int draws) {
+        this.draws+= draws;
         return this;
     }
 
-    public Record setNc(int nc) {
-        this.nc = nc;
+    public Record addNc(int nc) {
+        this.nc += nc;
         return this;
     }
+
+    private int calculateTotalWins(){
+        this.wins = this.winsDec + this.winsKo + this.winsOther + this.winsSub;
+        return  this.wins;
+    }
+
+    private int calculateTotalLosses(){
+        this.losses = this.lossesDec + this.lossesKo + this.lossesOther + this.lossesSub;
+        return  this.wins;
+    }
+
 }
