@@ -1,6 +1,6 @@
 package mmates.core.model.fights;
 
-public enum  WinMethod {
+public enum WinMethod {
 
     KO, TKO, DECISION, SUBMISSION, OTHER;
 }

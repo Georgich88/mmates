@@ -5,6 +5,7 @@ import mmates.core.model.sources.SourceInformation;
 import mmates.core.model.teams.Team;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class Fighter implements Person {
 
@@ -20,18 +21,22 @@ public class Fighter implements Person {
 
     private Map<SourceInformation, String> profiles = new HashMap<>();
 
-    List<Fight> fights = new ArrayList<>();
-    List<Record> records = new ArrayList<>();
+    private List<Fight> fights = new ArrayList<>();
+    private List<Record> records = new ArrayList<>();
 
     private void calculateRecordByFights() {
         records.clear();
-        fights.forEach(fight -> {
+        fights.forEach(getRecordCalculatorByFight());
+    }
+
+    private Consumer<Fight> getRecordCalculatorByFight() {
+        return fight -> {
             Record lastRecord = null;
             if (records.size() != 0) {
                 lastRecord = records.get(records.size() - 1);
             }
             this.addRecord(fight, lastRecord);
-        });
+        };
     }
 
     public Record addRecord(Fight fight, Record lastRecord) {

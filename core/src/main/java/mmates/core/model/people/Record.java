@@ -23,6 +23,10 @@ public class Record {
     private int draws = 0;
     private int nc = 0;
 
+
+    public Record() {
+
+    }
     public Record(Fighter fighter) {
         this.fighter = fighter;
     }
@@ -46,11 +50,6 @@ public class Record {
         nc = lastRecord.nc;
     }
 
-    public Record setWins(int wins) {
-        this.wins = wins;
-        return this;
-    }
-
     public Record addWinsKo(int winsKo) {
         this.winsKo += winsKo;
         calculateTotalWins();
@@ -72,11 +71,6 @@ public class Record {
     public Record addWinsOther(int winsOther) {
         this.winsOther += winsOther;
         calculateTotalWins();
-        return this;
-    }
-
-    public Record addLosses(int losses) {
-        this.losses += losses;
         return this;
     }
 
@@ -105,7 +99,7 @@ public class Record {
     }
 
     public Record addDraws(int draws) {
-        this.draws+= draws;
+        this.draws += draws;
         return this;
     }
 
@@ -114,14 +108,14 @@ public class Record {
         return this;
     }
 
-    private int calculateTotalWins(){
+    private int calculateTotalWins() {
         this.wins = this.winsDec + this.winsKo + this.winsOther + this.winsSub;
-        return  this.wins;
+        return this.wins;
     }
 
-    private int calculateTotalLosses(){
+    private int calculateTotalLosses() {
         this.losses = this.lossesDec + this.lossesKo + this.lossesOther + this.lossesSub;
-        return  this.wins;
+        return this.wins;
     }
 
 }
