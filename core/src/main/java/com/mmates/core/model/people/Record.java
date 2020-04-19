@@ -1,6 +1,6 @@
-package mmates.core.model.people;
+package com.mmates.core.model.people;
 
-import mmates.core.model.fights.Fight;
+import com.mmates.core.model.fights.Fight;
 
 import java.util.Date;
 
@@ -12,11 +12,13 @@ public class Record {
 
     private int wins = 0;
     private int winsKo = 0;
+    private int winsTko = 0;
     private int winsSub = 0;
     private int winsDec = 0;
     private int winsOther = 0;
     private int losses = 0;
     private int lossesKo = 0;
+    private int lossesTko = 0;
     private int lossesSub = 0;
     private int lossesDec = 0;
     private int lossesOther = 0;
@@ -38,11 +40,13 @@ public class Record {
 
         wins = lastRecord.wins;
         winsKo = lastRecord.winsKo;
+        winsTko = lastRecord.winsTko;
         winsSub = lastRecord.winsSub;
         winsDec = lastRecord.winsDec;
         winsOther = lastRecord.winsOther;
         losses = lastRecord.losses;
         lossesKo = lastRecord.lossesKo;
+        lossesTko = lastRecord.lossesTko;
         lossesSub = lastRecord.lossesSub;
         lossesDec = lastRecord.lossesDec;
         lossesOther = lastRecord.lossesOther;
@@ -52,6 +56,12 @@ public class Record {
 
     public Record addWinsKo(int winsKo) {
         this.winsKo += winsKo;
+        calculateTotalWins();
+        return this;
+    }
+
+    public Record addWinsTko(int winsTko) {
+        this.winsTko += winsTko;
         calculateTotalWins();
         return this;
     }
@@ -76,6 +86,12 @@ public class Record {
 
     public Record addLossesKo(int lossesKo) {
         this.lossesKo += lossesKo;
+        calculateTotalLosses();
+        return this;
+    }
+
+    public Record addLossesTko(int lossesTko) {
+        this.lossesTko += lossesTko;
         calculateTotalLosses();
         return this;
     }
@@ -109,12 +125,12 @@ public class Record {
     }
 
     private int calculateTotalWins() {
-        this.wins = this.winsDec + this.winsKo + this.winsOther + this.winsSub;
+        this.wins = this.winsDec + this.winsKo + this.winsTko + this.winsOther + this.winsSub;
         return this.wins;
     }
 
     private int calculateTotalLosses() {
-        this.losses = this.lossesDec + this.lossesKo + this.lossesOther + this.lossesSub;
+        this.losses = this.lossesDec + this.lossesKo + this.lossesTko + this.lossesOther + this.lossesSub;
         return this.wins;
     }
 

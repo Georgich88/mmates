@@ -1,13 +1,14 @@
-package mmates.core.model.people;
+package com.mmates.core.model.people;
 
-import mmates.core.model.fights.Fight;
-import mmates.core.model.sources.SourceInformation;
-import mmates.core.model.teams.Team;
+import com.mmates.core.model.Loadable;
+import com.mmates.core.model.fights.Fight;
+import com.mmates.core.model.teams.Team;
+import com.mmates.core.model.sources.SourceInformation;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-public class Fighter implements Person {
+public class Fighter implements Person, Loadable {
 
     private String name;
     private String nickname = "";
@@ -18,6 +19,7 @@ public class Fighter implements Person {
     private Date birthday;
     private Date debut;
     private Team team;
+    private String picture = "";
 
     private Map<SourceInformation, String> profiles = new HashMap<>();
 
@@ -70,5 +72,101 @@ public class Fighter implements Person {
         return currentRecord;
     }
 
+    // Getters and setters
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getReach() {
+        return reach;
+    }
+
+    public void setReach(int reach) {
+        this.reach = reach;
+    }
+
+    public int getLegReach() {
+        return legReach;
+    }
+
+    public void setLegReach(int legReach) {
+        this.legReach = legReach;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public Date getDebut() {
+        return debut;
+    }
+
+    public void setDebut(Date debut) {
+        this.debut = debut;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public List<Fight> getFights() {
+        return fights;
+    }
+
+    public void setFights(List<Fight> fights) {
+        this.fights = fights;
+    }
+
+    public List<Record> getRecords() {
+        return records;
+    }
+
+    public void setRecords(List<Record> records) {
+        this.records = records;
+    }
+
+    public String getSherdogUrl() {
+        return profiles.getOrDefault(SourceInformation.SHERDOG, "");
+    }
+
+    public void setSherdogUrl(String sherdogUrl) {
+        profiles.put(SourceInformation.SHERDOG, sherdogUrl);
+    }
 }

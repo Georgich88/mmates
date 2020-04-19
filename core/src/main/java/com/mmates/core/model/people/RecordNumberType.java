@@ -1,14 +1,12 @@
-package mmates.core.model.people;
+package com.mmates.core.model.people;
 
-import mmates.core.model.fights.Fight;
-import mmates.core.model.fights.FightResult;
-import mmates.core.model.fights.WinMethod;
-
-import java.util.StringJoiner;
+import com.mmates.core.model.fights.Fight;
+import com.mmates.core.model.fights.FightResult;
+import com.mmates.core.model.fights.WinMethod;
 
 public enum RecordNumberType {
 
-    WINS_KO, WINS_SUB, WINS_DEC, WINS_OTHER, LOSSES_KO, LOSSES_SUB, LOSSES_DEC, LOSSES_OTHER, DRAWS, NO_CONTEST;
+    WINS_KO, WINS_TKO, WINS_SUB, WINS_DEC, WINS_OTHER, LOSSES_KO, LOSSES_TKO, LOSSES_SUB, LOSSES_DEC, LOSSES_OTHER, DRAWS, NO_CONTEST;
 
     private static final String ERROR_MESSAGE_FIGHTER_FIGHT_DO_NOT_MATCH = "%s did not contest in fight: %s";
 
@@ -38,6 +36,10 @@ public enum RecordNumberType {
             return WINS_KO;
         } else if ((fighter.equals(firstFighter) && fightResult == FightResult.FIGHTER_1_WIN
                 || fighter.equals(secondFighter) && fightResult == FightResult.FIGHTER_2_WIN)
+                && winMethod == WinMethod.TKO) {
+            return WINS_TKO;
+        } else if ((fighter.equals(firstFighter) && fightResult == FightResult.FIGHTER_1_WIN
+                || fighter.equals(secondFighter) && fightResult == FightResult.FIGHTER_2_WIN)
                 && winMethod == WinMethod.SUBMISSION) {
             return WINS_SUB;
         } else if ((fighter.equals(firstFighter) && fightResult == FightResult.FIGHTER_1_WIN
@@ -52,6 +54,10 @@ public enum RecordNumberType {
                 || fighter.equals(secondFighter) && fightResult == FightResult.FIGHTER_1_WIN)
                 && winMethod == WinMethod.KO) {
             return LOSSES_KO;
+        } else if ((fighter.equals(firstFighter) && fightResult == FightResult.FIGHTER_2_WIN
+                || fighter.equals(secondFighter) && fightResult == FightResult.FIGHTER_1_WIN)
+                && winMethod == WinMethod.TKO) {
+            return LOSSES_TKO;
         } else if ((fighter.equals(firstFighter) && fightResult == FightResult.FIGHTER_2_WIN
                 || fighter.equals(secondFighter) && fightResult == FightResult.FIGHTER_1_WIN)
                 && winMethod == WinMethod.SUBMISSION) {

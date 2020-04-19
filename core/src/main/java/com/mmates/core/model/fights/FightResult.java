@@ -1,4 +1,4 @@
-package mmates.core.model.fights;
+package com.mmates.core.model.fights;
 
 public enum FightResult {
     FIGHTER_1_WIN,

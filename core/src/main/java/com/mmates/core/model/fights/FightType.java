@@ -1,4 +1,4 @@
-package mmates.core.model.fights;
+package com.mmates.core.model.fights;
 
 public enum FightType {
     PRO, PRO_EXHIBITION, EXHIBITION, AMATEUR, OTHER, UPCOMING;
