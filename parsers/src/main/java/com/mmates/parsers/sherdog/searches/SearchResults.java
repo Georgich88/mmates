@@ -1,10 +1,12 @@
-package com.mmates.parsers.sherdog;
+package com.mmates.parsers.sherdog.searches;
 
 import com.mmates.core.model.Loadable;
 import com.mmates.core.model.events.Event;
 import com.mmates.core.model.people.Fighter;
-import com.mmates.sherdogparser.Constants;
-import com.mmates.sherdogparser.exceptions.SherdogParserException;
+import com.mmates.parsers.common.exceptions.ParserException;
+import com.mmates.parsers.common.utils.Constants;
+import com.mmates.parsers.sherdog.Sherdog;
+
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -56,9 +58,9 @@ public class SearchResults {
 
         parse.forEach(r -> {
             if (r.getSherdogUrl().startsWith(Constants.BASE_URL + "/events/")) {
-                dryEvents.add(r);
+                dryEvents.add((Event) r); // TODO: delete casting
             } else if (r.getSherdogUrl().startsWith(Constants.BASE_URL + "/fighter/")) {
-                dryFighters.add(r);
+                dryFighters.add((Fighter) r); // TODO: delete casting
             }
         });
     }
@@ -112,7 +114,9 @@ public class SearchResults {
                     try {
                         return sherdog.getFighter(f.getSherdogUrl());
                     } catch (IOException | ParseException e) {
-                        return null;
+                        return null; // TODO: delete null return
+                    } catch (ParserException e) {
+                        return null; // TODO: delete null return
                     }
                 })
                 .filter(Objects::nonNull)
@@ -131,7 +135,7 @@ public class SearchResults {
                 .map(f -> {
                     try {
                         return sherdog.getEvent(f.getSherdogUrl());
-                    } catch (IOException | ParseException | SherdogParserException e) {
+                    } catch (IOException | ParseException | ParserException e) {
                         return null;
                     }
                 })

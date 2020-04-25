@@ -6,6 +6,10 @@ import com.mmates.core.model.promotion.Promotion;
 import com.mmates.parsers.common.exceptions.ParserException;
 import com.mmates.parsers.common.utils.Constants;
 import com.mmates.parsers.common.utils.PictureProcessor;
+import com.mmates.parsers.sherdog.events.EventParser;
+import com.mmates.parsers.sherdog.people.FighterParser;
+import com.mmates.parsers.sherdog.promotions.PromotionParser;
+import com.mmates.parsers.sherdog.searches.Search;
 import com.mmates.sherdogparser.exceptions.SherdogParserException;
 
 import java.io.IOException;

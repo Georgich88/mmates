@@ -1,15 +1,16 @@
-package com.mmates.parsers.sherdog;
+package com.mmates.parsers.sherdog.events;
 
 import com.mmates.core.model.events.Event;
 import com.mmates.core.model.fights.Fight;
+import com.mmates.core.model.fights.FightResult;
+import com.mmates.core.model.fights.WinMethod;
 import com.mmates.core.model.people.Fighter;
 import com.mmates.core.model.promotion.Promotion;
 import com.mmates.parsers.common.Parser;
 import com.mmates.parsers.common.exceptions.ParserException;
 import com.mmates.parsers.common.utils.Constants;
 import com.mmates.parsers.common.utils.ParserUtils;
-import com.mmates.sherdogparser.exceptions.SherdogParserException;
-import com.mmates.sherdogparser.models.FightResult;
+import com.mmates.parsers.sherdog.Sherdog;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -28,7 +29,12 @@ import java.util.List;
  */
 public class EventParser implements Parser<Event> {
 
-    private final int FIGHTER1_COLUMN = 1, FIGHTER2_COLUMN = 3, METHOD_COLUMN = 4, ROUND_COLUMN = 5, TIME_COLUMN = 6;
+    private static final int FIGHTER1_COLUMN = 1;
+    private static final int FIGHTER2_COLUMN = 3;
+    private static final int METHOD_COLUMN = 4;
+    private static final int ROUND_COLUMN = 5;
+    private static final int TIME_COLUMN = 6;
+
     private final ZoneId ZONE_ID;
 
     public static final String SHERDOG_RECENT_EVENT_URL_TEMPLATE = "https://www.sherdog.com/events/recent/%d-page/";
@@ -46,7 +52,7 @@ public class EventParser implements Parser<Event> {
 
     /**
      * Setting a zoneId will convert the dates to the desired zone id
-     * 
+     *
      * @param zoneId specified zone id for time conversion
      */
     public EventParser(ZoneId zoneId) {
@@ -118,7 +124,7 @@ public class EventParser implements Parser<Event> {
     }
 
     /**
-     * parses an event from a jsoup document
+     * Parses an event from a jsoup document
      *
      * @param doc the jsoup document
      * @return a parsed event
@@ -230,13 +236,20 @@ public class EventParser implements Parser<Event> {
     }
 
     private void defineResultMethod(Elements mainFightElement, Fight mainFight) {
-        // getting method
+
         Elements mainTd = mainFightElement.select("td");
+
         if (mainTd.size() > 0) {
-            mainFight.setWinMethod(mainTd.get(1).html().replaceAll("<em(.*)<br>", "").trim());
-            mainFight.setWinRound(Integer.parseInt(mainTd.get(3).html().replaceAll("<em(.*)<br>", "").trim()));
-            mainFight.setWinTime(mainTd.get(4).html().replaceAll("<em(.*)<br>", "").trim());
+
+            var winMethod = WinMethod.defineWinMethod(mainTd.get(1).html().replaceAll("<em(.*)<br>", "").trim());
+            int winRound = Integer.parseInt(mainTd.get(3).html().replaceAll("<em(.*)<br>", "").trim());
+            float winTime = Float.parseFloat(mainTd.get(4).html().replaceAll("<em(.*)<br>", "").trim());
+
+            mainFight.setWinMethod(winMethod);
+            mainFight.setWinRound(winRound);
+            mainFight.setWinTime(winTime);
         }
+
     }
 
     private Fight getMainFight(Event event, Elements mainFightElement) {
@@ -329,8 +342,8 @@ public class EventParser implements Parser<Event> {
      * @param td element from Sherdog's table
      * @return get the time of the event
      */
-    private String getTime(Element td) {
-        return td.html();
+    private float getTime(Element td) {
+        return Float.parseFloat(td.html());
     }
 
     /**
@@ -347,8 +360,8 @@ public class EventParser implements Parser<Event> {
      * @param td element from Sherdog's table
      * @return get the win method
      */
-    private String getMethod(Element td) {
-        return td.html().replaceAll("<br>(.*)", "");
+    private WinMethod getMethod(Element td) {
+        return WinMethod.defineWinMethod(td.html().replaceAll("<br>(.*)", ""));
     }
 
     /**

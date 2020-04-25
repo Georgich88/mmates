@@ -1,6 +1,6 @@
-package com.mmates.parsers.sherdog;
+package com.mmates.parsers.sherdog.searches;
 
-import com.mmates.sherdogparser.Sherdog;
+import com.mmates.parsers.sherdog.Sherdog;
 
 import java.io.IOException;
 

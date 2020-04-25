@@ -1,19 +1,10 @@
-package com.mmates.parsers.sherdog;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
+package com.mmates.parsers.sherdog.people;
 
 import com.mmates.core.model.events.Event;
 import com.mmates.core.model.fights.Fight;
 import com.mmates.core.model.fights.FightResult;
+import com.mmates.core.model.fights.FightType;
+import com.mmates.core.model.fights.WinMethod;
 import com.mmates.core.model.people.Fighter;
 import com.mmates.parsers.common.Parser;
 import com.mmates.parsers.common.utils.Constants;
@@ -26,13 +17,16 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mmates.sherdogparser.Constants;
-import com.mmates.sherdogparser.PictureProcessor;
-import com.mmates.sherdogparser.models.Event;
-import com.mmates.sherdogparser.models.Fight;
-import com.mmates.sherdogparser.models.FightResult;
-import com.mmates.sherdogparser.models.FightType;
-import com.mmates.sherdogparser.models.Fighter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class FighterParser implements Parser<Fighter> {
 
@@ -132,14 +126,14 @@ public class FighterParser implements Parser<Fighter> {
 		// height
 		try {
 			Elements height = doc.select(".size_info .height strong");
-			fighter.setHeight(height.get(0).html());
+			fighter.setHeight(Integer.parseInt(height.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
 		// weight
 		try {
 			Elements weight = doc.select(".size_info .weight strong");
-			fighter.setWeight(weight.get(0).html());
+			fighter.setWeight(Integer.parseInt(weight.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
@@ -291,9 +285,9 @@ public class FighterParser implements Parser<Fighter> {
 				fight.setFighter2(getOpponent(tds.get(COLUMN_OPPONENT)));
 				fight.setEvent(getEvent(tds.get(COLUMN_EVENT)));
 				fight.setDate(getDate(tds.get(COLUMN_EVENT)));
-				fight.setWinMethod(getWinMethod(tds.get(COLUMN_METHOD)));
+				fight.setWinMethod(WinMethod.defineWinMethod(getWinMethod(tds.get(COLUMN_METHOD))));
 				fight.setWinRound(getWinRound(tds.get(COLUMN_ROUND)));
-				fight.setWinTime(getWinTime(tds.get(COLUMN_TIME)));
+				fight.setWinTime(Float.parseFloat(getWinTime(tds.get(COLUMN_TIME))));
 				fights.add(fight);
 				logger.info("{}", fight);
 			});

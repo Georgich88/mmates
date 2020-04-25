@@ -3,4 +3,5 @@ module com.mmates.parsers {
     requires org.jsoup;
     requires commons.io;
     requires org.slf4j;
+    requires commons.codec;
 }

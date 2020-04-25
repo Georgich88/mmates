@@ -1,9 +1,10 @@
-package com.mmates.parsers.sherdog;
+package com.mmates.parsers.sherdog.searches;
 
 import com.mmates.core.model.Loadable;
+import com.mmates.parsers.common.utils.Constants;
 import com.mmates.parsers.common.utils.ParserUtils;
-import com.mmates.sherdogparser.Constants;
-import com.mmates.sherdogparser.models.SherdogBaseObject;
+import com.mmates.parsers.sherdog.SherdogBaseObject;
+import com.mmates.parsers.sherdog.events.EventParser;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class SearchParser {
 				.map(t -> t.get(0))
 				.map(t -> {
 					// this could be either fighter or event
-					Loadable sherdogObject = new SherdogBaseObject();
+					SherdogBaseObject sherdogObject = new SherdogBaseObject();
 					sherdogObject.setName(t.text());
 					sherdogObject.setSherdogUrl(Constants.BASE_URL + t.attr("href"));
 

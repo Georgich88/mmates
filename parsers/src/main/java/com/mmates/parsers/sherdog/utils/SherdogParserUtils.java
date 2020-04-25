@@ -1,9 +1,10 @@
-package com.mmates.parsers.sherdog;
+package com.mmates.parsers.sherdog.utils;
 
 import com.mmates.core.model.fights.Fight;
 import com.mmates.core.model.fights.FightResult;
 import com.mmates.core.model.fights.FightType;
 import com.mmates.core.model.people.Fighter;
+import com.mmates.parsers.sherdog.Sherdog;
 import org.jsoup.nodes.Document;
 
 import java.util.Optional;

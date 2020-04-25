@@ -27,7 +27,7 @@ public class ParserUtils {
      * @param element Jsoup element
      * @return a FightResult
      */
-    static FightResult getFightResult(Element element) {
+    public static FightResult getFightResult(Element element) {
         if (element.select(".win").size() > 0) {
             return FightResult.FIGHTER_1_WIN;
         } else if (element.select(".loss").size() > 0) {
@@ -61,7 +61,7 @@ public class ParserUtils {
      * @param zoneId Zone id to convert from sherdog's time
      * @return the converted zonedatetime
      */
-    static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId) throws DateTimeParseException {
+    public static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId) throws DateTimeParseException {
         ZonedDateTime usDate = ZonedDateTime.parse(date).withZoneSameInstant(ZoneId.of(Constants.SHERDOG_TIME_ZONE));
         return usDate.withZoneSameInstant(zoneId);
     }
@@ -74,7 +74,7 @@ public class ParserUtils {
      * @param formatter Formatter for exotic date format
      * @return the converted zonedatetime
      */
-    static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId, DateTimeFormatter formatter)
+    public static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId, DateTimeFormatter formatter)
             throws DateTimeParseException {
         try {
             // noticed that date not parsed with non-US locale. For me this fix is helpful
@@ -113,14 +113,13 @@ public class ParserUtils {
         }
     }
 
-
     /**
      * Gets the url of a page using the meta tags in head
      *
      * @param doc the jsoup document to extract the page url from
      * @return the url of the document
      */
-    static String getSherdogPageUrl(Document doc) {
+    public static String getSherdogPageUrl(Document doc) {
         String url = Optional.ofNullable(doc.head()).map(h -> h.select("meta")).map(
                 es -> es.stream().filter(e -> e.attr("property").equalsIgnoreCase("og:url")).findFirst().orElse(null))
                 .map(m -> m.attr("content")).orElse("");
@@ -131,4 +130,5 @@ public class ParserUtils {
 
         return url.replace("http://", "https://");
     }
+
 }

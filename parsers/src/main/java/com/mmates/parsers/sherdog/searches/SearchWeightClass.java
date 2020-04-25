@@ -1,4 +1,4 @@
-package com.mmates.parsers.sherdog;
+package com.mmates.parsers.sherdog.searches;
 
 public enum SearchWeightClass {
     CATCHWEIGHT(11, "Catchweight"),
