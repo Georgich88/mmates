@@ -3,31 +3,55 @@ package com.mmates.core.model.fights;
 import com.mmates.core.model.Loadable;
 import com.mmates.core.model.events.Event;
 import com.mmates.core.model.people.Fighter;
+import com.mmates.core.model.sources.SourceInformation;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class Fight implements Loadable {
 
+    private UUID id;
     private String name;
     private Event event;
     private Fighter fighter1;
     private Fighter fighter2;
-    private Date date;
+    private ZonedDateTime date;
     private FightResult result = FightResult.NOT_HAPPENED;
     private WinMethod winMethod;
     private float winTime;
     private int winRound;
     private FightType type;
+    private Map<SourceInformation, String> profiles = new HashMap<>();
 
-    private String twitter;
-    private String facebook;
-    private String instagram;
-
+    // Constructors
 
     public Fight() {
     }
 
+    // Profiles URLs
+
+    @Override
+    public String getUrl(SourceInformation sourceInformation) {
+        return profiles.getOrDefault(sourceInformation, "");
+    }
+
+    @Override
+    public void setUrl(SourceInformation sourceInformation, String url) {
+        profiles.put(sourceInformation, url);
+    }
+
     // Getters and setters
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -61,11 +85,11 @@ public class Fight implements Loadable {
         this.fighter2 = fighter2;
     }
 
-    public Date getDate() {
+    public ZonedDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(ZonedDateTime date) {
         this.date = date;
     }
 
@@ -109,27 +133,14 @@ public class Fight implements Loadable {
         this.type = type;
     }
 
-    public String getTwitter() {
-        return twitter;
+    public Map<SourceInformation, String> getProfiles() {
+        return profiles;
     }
 
-    public void setTwitter(String twitter) {
-        this.twitter = twitter;
+    public void setProfiles(Map<SourceInformation, String> profiles) {
+        this.profiles = profiles;
     }
 
-    public String getFacebook() {
-        return facebook;
-    }
 
-    public void setFacebook(String facebook) {
-        this.facebook = facebook;
-    }
 
-    public String getInstagram() {
-        return instagram;
-    }
-
-    public void setInstagram(String instagram) {
-        this.instagram = instagram;
-    }
 }
