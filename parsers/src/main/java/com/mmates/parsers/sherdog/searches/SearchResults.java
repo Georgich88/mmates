@@ -27,12 +27,10 @@ public class SearchResults {
 
 
     public SearchResults(String term, SearchWeightClass weightClass, Sherdog sherdog) throws IOException {
+
         this.term = term;
         this.weightClass = weightClass;
-
         this.sherdog = sherdog;
-
-
         this.search();
 
     }

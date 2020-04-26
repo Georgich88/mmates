@@ -11,12 +11,10 @@ public class Search {
 
     private Sherdog sherdog;
 
-
     public Search(String term, Sherdog sherdog) {
         this.term = term;
         this.sherdog = sherdog;
     }
-
 
     /**
      * Filter the search results by weight class
@@ -24,8 +22,8 @@ public class Search {
      * @return
      */
     public Search withWeightClass(SearchWeightClass weightClass){
-        this.weightClass = weightClass;
 
+        this.weightClass = weightClass;
         return this;
     }
 

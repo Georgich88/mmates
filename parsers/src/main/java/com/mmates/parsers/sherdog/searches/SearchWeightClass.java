@@ -1,6 +1,7 @@
 package com.mmates.parsers.sherdog.searches;
 
 public enum SearchWeightClass {
+
     CATCHWEIGHT(11, "Catchweight"),
     MINIMUMWEIGHT(17, "Minimumweight"),
     POUND_FOR_POUND(8, "Pound for Pound"),
@@ -24,7 +25,6 @@ public enum SearchWeightClass {
 
     private Integer value;
     private String label;
-
 
     public Integer getValue() {
         return value;
