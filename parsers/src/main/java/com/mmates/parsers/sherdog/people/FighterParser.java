@@ -7,9 +7,9 @@ import com.mmates.core.model.fights.FightType;
 import com.mmates.core.model.fights.WinMethod;
 import com.mmates.core.model.people.Fighter;
 import com.mmates.parsers.common.Parser;
-import com.mmates.parsers.common.utils.Constants;
 import com.mmates.parsers.common.utils.ParserUtils;
 import com.mmates.parsers.common.utils.PictureProcessor;
+import com.mmates.parsers.sherdog.utils.SherdogConstants;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,14 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FighterParser implements Parser<Fighter> {
@@ -83,7 +81,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param zoneId specified zone id for time conversion
 	 */
 	public FighterParser(ZoneId zoneId) {
-		this.PROCESSOR = Constants.DEFAULT_PICTURE_PROCESSOR;
+		this.PROCESSOR = SherdogConstants.DEFAULT_PICTURE_PROCESSOR;
 		ZONE_ID = zoneId;
 
 	}
@@ -287,7 +285,7 @@ public class FighterParser implements Parser<Fighter> {
 				fight.setDate(getDate(tds.get(COLUMN_EVENT)));
 				fight.setWinMethod(WinMethod.defineWinMethod(getWinMethod(tds.get(COLUMN_METHOD))));
 				fight.setWinRound(getWinRound(tds.get(COLUMN_ROUND)));
-				fight.setWinTime(Float.parseFloat(getWinTime(tds.get(COLUMN_TIME))));
+				fight.setWinTime(getWinTime(tds.get(COLUMN_TIME)));
 				fights.add(fight);
 				logger.info("{}", fight);
 			});
@@ -377,8 +375,16 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return the time of win
 	 */
-	private String getWinTime(Element td) {
-		return td.html();
+	private int getWinTime(Element td) {
+		try {
+			SimpleDateFormat minutesSecondsDateFormat = new SimpleDateFormat("mm:ss");
+			Date date = minutesSecondsDateFormat.parse(td.html());
+			return date.getSeconds();
+
+		} catch (ParseException e) {
+			return 0;
+		}
+
 	}
 
 	/**
