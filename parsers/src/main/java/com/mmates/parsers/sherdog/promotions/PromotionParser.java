@@ -8,6 +8,7 @@ import com.mmates.parsers.common.exceptions.ParserException;
 import com.mmates.parsers.common.utils.ParserUtils;
 import com.mmates.parsers.sherdog.Sherdog;
 import com.mmates.parsers.sherdog.utils.SherdogConstants;
+import com.mmates.parsers.sherdog.utils.SherdogParserUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -38,6 +39,8 @@ public class PromotionParser implements Parser<Promotion> {
     public static final String SELECTOR_EVENT_NAME = ".bio_organization .module_header h2[itemprop=\"name\"]";
     public static final String SELECTOR_UPCOMING_EVENTS_TABLE = "#upcoming_tab .event tr";
     public static final String SELECTOR_EVENT_NAME_ELEMENT = "span[itemprop=\"name\"]";
+    public static final String SELECTOR_EVENT_URL_ELEMENT = "a[itemprop=\"url\"]";
+    public static final String SELECTOR_EVENT_DATE_ELEMENT = "meta[itemprop=\"startDate\"]";
 
     private final Logger logger = LoggerFactory.getLogger(PromotionParser.class);
 
@@ -171,7 +174,7 @@ public class PromotionParser implements Parser<Promotion> {
     public Promotion parseDocument(Document doc) throws IOException, ParseException {
 
         Promotion promotion = new Promotion();
-        promotion.setSherdogUrl(ParserUtils.getSherdogPageUrl(doc));
+        promotion.setSherdogUrl(SherdogParserUtils.getSherdogPageUrl(doc));
 
         String url = promotion.getSherdogUrl();
         url += "/recent-events/%d";
@@ -188,11 +191,12 @@ public class PromotionParser implements Parser<Promotion> {
         promotion.getEvents().addAll(parseEvent(upcomingEventsElement, promotion));
 
         logger.info(MESSAGE_INFO_TEMPLATE_GETTING_PAST_EVENTS);
+
         List<Event> toAdd;
+
         do {
 
             logger.info(MESSAGE_INFO_TEMPLATE_PARSING_PAGE, page);
-
             doc = ParserUtils.parseDocument(String.format(url, page));
             Elements events = doc.select("#recent_tab .event tr");
 
@@ -208,13 +212,14 @@ public class PromotionParser implements Parser<Promotion> {
     }
 
     /**
-     * Get all the events of an promotion
+     * Retrieve all promotion events
      *
      * @param trs the Jsoup TR elements from the event table
      * @return a list of events
      * @throws ParseException if something is wrong with sherdog layout
      */
     private List<Event> parseEvent(Elements trs, Promotion promotion) throws ParseException {
+
         List<Event> events = new ArrayList<>();
 
         if (trs.size() > 0) {
@@ -273,7 +278,7 @@ public class PromotionParser implements Parser<Promotion> {
     }
 
     private String parseEventUrl(Element td) {
-        Elements url = td.select("a[itemprop=\"url\"]");
+        Elements url = td.select(SELECTOR_EVENT_URL_ELEMENT);
         if (url.size() > 0) {
             String attr = url.get(0).attr("abs:href");
             return attr;
@@ -283,10 +288,9 @@ public class PromotionParser implements Parser<Promotion> {
     }
 
     private ZonedDateTime parseEventDate(Element element) {
-        Elements metaDate = element.select("meta[itemprop=\"startDate\"]");
+        Elements metaDate = element.select(SELECTOR_EVENT_DATE_ELEMENT);
         if (metaDate.size() > 0) {
             String date = metaDate.get(0).attr("content");
-
             return ParserUtils.getDateFromStringToZoneId(date, ZONE_ID);
         } else {
             return null;

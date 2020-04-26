@@ -113,22 +113,4 @@ public class ParserUtils {
         }
     }
 
-    /**
-     * Gets the url of a page using the meta tags in head
-     *
-     * @param doc the jsoup document to extract the page url from
-     * @return the url of the document
-     */
-    public static String getSherdogPageUrl(Document doc) {
-        String url = Optional.ofNullable(doc.head()).map(h -> h.select("meta")).map(
-                es -> es.stream().filter(e -> e.attr("property").equalsIgnoreCase("og:url")).findFirst().orElse(null))
-                .map(m -> m.attr("content")).orElse("");
-
-        if (url.startsWith("//")) { // 2018-10-10 bug in sherdog where ig:url starts with //?
-            url = url.replaceFirst("//", "http://");
-        }
-
-        return url.replace("http://", "https://");
-    }
-
 }

@@ -11,6 +11,7 @@ import com.mmates.parsers.common.exceptions.ParserException;
 import com.mmates.parsers.common.utils.Constants;
 import com.mmates.parsers.common.utils.ParserUtils;
 import com.mmates.parsers.sherdog.Sherdog;
+import com.mmates.parsers.sherdog.utils.SherdogParserUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -36,10 +37,12 @@ public class EventParser implements Parser<Event> {
     private static final int METHOD_COLUMN = 4;
     private static final int ROUND_COLUMN = 5;
     private static final int TIME_COLUMN = 6;
+    public static final String SELECTOR_TABLE_DATA = "td";
 
     private final ZoneId ZONE_ID;
 
     public static final String SHERDOG_RECENT_EVENT_URL_TEMPLATE = "https://www.sherdog.com/events/recent/%d-page/";
+    public static final SimpleDateFormat MINUTES_SECONDS_DATE_FORMAT = new SimpleDateFormat("mm:ss");
 
     private final Logger logger = LoggerFactory.getLogger(EventParser.class);
     private boolean fastMode = false;
@@ -52,6 +55,15 @@ public class EventParser implements Parser<Event> {
         this.fastMode = fastMode;
     }
 
+    // Constructors
+
+    /**
+     * Creates an event parser with the default zone id
+     */
+    public EventParser() {
+        this.ZONE_ID = ZoneId.systemDefault();
+    }
+
     /**
      * Setting a zoneId will convert the dates to the desired zone id
      *
@@ -61,21 +73,24 @@ public class EventParser implements Parser<Event> {
         this.ZONE_ID = zoneId;
     }
 
+    // Parsers
+
     /**
-     * Creates an event parser with the default zone id
+     * Parses recent events from the event page
+     *
+     * @param start the start position
+     * @param depth amount of events to parse
+     * @return recent events
+     * @throws IOException
+     * @throws ParseException
+     * @throws ParserException
      */
-    public EventParser() {
-        this.ZONE_ID = ZoneId.systemDefault();
-    }
+    public List<Event> parseRecentEvents(int start, int depth) throws IOException, ParseException, ParserException {
 
-
-    public List<Event> loadRecentEvents(int start, int depth) throws IOException, ParseException, ParserException {
-
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
 
         String url = SHERDOG_RECENT_EVENT_URL_TEMPLATE;
         int currentPageNumber = start;
-        Document doc = ParserUtils.parseDocument(String.format(url, currentPageNumber));
         Sherdog sherdog = new Sherdog.Builder().withTimezone(Constants.SHERDOG_TIME_ZONE).build();
         sherdog.setFastMode(isFastMode());
 
@@ -83,19 +98,19 @@ public class EventParser implements Parser<Event> {
 
         do {
 
-            doc = ParserUtils.parseDocument(String.format(url, currentPageNumber));
+            Document doc = ParserUtils.parseDocument(String.format(url, currentPageNumber));
             Elements eventElements = doc.select("#recentfights_tab .event tr");
 
             if (eventElements.size() > 0) {
                 eventElements.remove(0);
                 eventElements.forEach(tr -> {
 
-                    Elements tds = tr.select("td");
+                    Elements tds = tr.select(SELECTOR_TABLE_DATA);
                     String eventUrl = getEventUrl(tds.get(1));
                     Event event;
 
                     try {
-                        event = (Event) sherdog.getEvent(eventUrl);
+                        event = sherdog.getEvent(eventUrl);
                         if (event != null) {
                             events.add(event);
                         }
@@ -136,7 +151,7 @@ public class EventParser implements Parser<Event> {
 
         Event event = new Event();
 
-        event.setSherdogUrl(ParserUtils.getSherdogPageUrl(doc));
+        event.setSherdogUrl(SherdogParserUtils.getSherdogPageUrl(doc));
 
         parseEventName(doc, event);
         parseDocumentPromotion(doc, event);
@@ -239,15 +254,14 @@ public class EventParser implements Parser<Event> {
 
     private void defineResultMethod(Elements mainFightElement, Fight mainFight) throws ParseException {
 
-        Elements mainTd = mainFightElement.select("td");
+        Elements mainTd = mainFightElement.select(SELECTOR_TABLE_DATA);
 
         if (mainTd.size() > 0) {
 
             var winMethod = WinMethod.defineWinMethod(mainTd.get(1).html().replaceAll("<em(.*)<br>", "").trim());
             int winRound = Integer.parseInt(mainTd.get(3).html().replaceAll("<em(.*)<br>", "").trim());
             String minutesSecondsWinTime = mainTd.get(4).html().replaceAll("<em(.*)<br>", "").trim();
-            SimpleDateFormat minutesSecondsDateFormat = new SimpleDateFormat("mm:ss");
-            Date date = minutesSecondsDateFormat.parse(minutesSecondsWinTime);
+            Date date = MINUTES_SECONDS_DATE_FORMAT.parse(minutesSecondsWinTime);
             int winTime = date.getSeconds();
 
             mainFight.setWinMethod(winMethod);
@@ -278,8 +292,13 @@ public class EventParser implements Parser<Event> {
         return mainFighter;
     }
 
+
     /**
-     * Parse fights of an old event
+     * Parses fights of an old event
+     *
+     * @param trs
+     * @param event
+     * @return
      */
     private List<Fight> parseEventFights(Elements trs, Event event) {
 
@@ -292,16 +311,16 @@ public class EventParser implements Parser<Event> {
                 Fight fight = new Fight();
                 fight.setEvent(event);
                 fight.setDate(event.getDate());
-                Elements tds = tr.select("td");
+                Elements tds = tr.select(SELECTOR_TABLE_DATA);
 
                 fight.setFighter1(parseFighterFromElements(tds.get(FIGHTER1_COLUMN)));
                 fight.setFighter2(parseFighterFromElements(tds.get(FIGHTER2_COLUMN)));
 
-                // parsing old fight, we can get the result
+                // Parse old fight, we can get the result
                 if (tds.size() == 7) {
-                    fight.setResult(getResult(tds.get(FIGHTER1_COLUMN)));
-                    fight.setWinMethod(getMethod(tds.get(METHOD_COLUMN)));
-                    fight.setWinRound(getRound(tds.get(ROUND_COLUMN)));
+                    fight.setResult(parseWinResult(tds.get(FIGHTER1_COLUMN)));
+                    fight.setWinMethod(parseWinMethod(tds.get(METHOD_COLUMN)));
+                    fight.setWinRound(parseWinRound(tds.get(ROUND_COLUMN)));
                     fight.setWinTime(getTime(tds.get(TIME_COLUMN)));
                 }
 
@@ -313,7 +332,7 @@ public class EventParser implements Parser<Event> {
     }
 
     /**
-     * Get a fighter
+     * Gets a fighter
      *
      * @param td element from Sherdog's table
      * @return return a Fighter with the fighter name and url
@@ -342,7 +361,7 @@ public class EventParser implements Parser<Event> {
     }
 
     /**
-     * get the time at which teh fight finished
+     * Gets the time at which teh fight finished
      *
      * @param td element from Sherdog's table
      * @return get the time of the event
@@ -350,8 +369,7 @@ public class EventParser implements Parser<Event> {
     private int getTime(Element td) {
 
         try {
-            SimpleDateFormat minutesSecondsDateFormat = new SimpleDateFormat("mm:ss");
-            Date date = minutesSecondsDateFormat.parse(td.html());
+            Date date = MINUTES_SECONDS_DATE_FORMAT.parse(td.html());
             return date.getSeconds();
 
         } catch (ParseException e) {
@@ -361,30 +379,32 @@ public class EventParser implements Parser<Event> {
     }
 
     /**
-     * get the round at which the even finished
+     * Parses the round at which the even finished
      *
      * @param td element from Sherdog's table
      * @return the round number
      */
-    private int getRound(Element td) {
+    private int parseWinRound(Element td) {
         return Integer.parseInt(td.html());
     }
 
     /**
+     * Parses the win method of the event
+     *
      * @param td element from Sherdog's table
      * @return get the win method
      */
-    private WinMethod getMethod(Element td) {
+    private WinMethod parseWinMethod(Element td) {
         return WinMethod.defineWinMethod(td.html().replaceAll("<br>(.*)", ""));
     }
 
     /**
-     * get the result of the fight
+     * Parses the result of the fight
      *
      * @param td element from Sherdog's table
      * @return a fight result enumerator value
      */
-    private FightResult getResult(Element td) {
+    private FightResult parseWinResult(Element td) {
         return ParserUtils.getFightResult(td);
     }
 

@@ -10,6 +10,7 @@ import com.mmates.parsers.common.Parser;
 import com.mmates.parsers.common.utils.ParserUtils;
 import com.mmates.parsers.common.utils.PictureProcessor;
 import com.mmates.parsers.sherdog.utils.SherdogConstants;
+import com.mmates.parsers.sherdog.utils.SherdogParserUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -95,7 +96,7 @@ public class FighterParser implements Parser<Fighter> {
 	@Override
 	public Fighter parseDocument(Document doc) throws IOException {
 		Fighter fighter = new Fighter();
-		fighter.setSherdogUrl(ParserUtils.getSherdogPageUrl(doc));
+		fighter.setSherdogUrl(SherdogParserUtils.getSherdogPageUrl(doc));
 
 		logger.info("Refreshing fighter {}", fighter.getSherdogUrl());
 

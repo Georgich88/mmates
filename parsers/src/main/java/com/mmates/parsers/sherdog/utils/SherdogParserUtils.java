@@ -60,7 +60,7 @@ public class SherdogParserUtils {
      * @param doc the jsoup document to extract the page url from
      * @return the url of the document
      */
-    static String getSherdogPageUrl(Document doc) {
+    public static String getSherdogPageUrl(Document doc) {
         String url = Optional.ofNullable(doc.head()).map(h -> h.select("meta")).map(
                 es -> es.stream().filter(e -> e.attr("property").equalsIgnoreCase("og:url")).findFirst().orElse(null))
                 .map(m -> m.attr("content")).orElse("");
