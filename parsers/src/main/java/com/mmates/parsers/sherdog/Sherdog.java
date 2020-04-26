@@ -10,7 +10,6 @@ import com.mmates.parsers.sherdog.events.EventParser;
 import com.mmates.parsers.sherdog.people.FighterParser;
 import com.mmates.parsers.sherdog.promotions.PromotionParser;
 import com.mmates.parsers.sherdog.searches.Search;
-import com.mmates.sherdogparser.exceptions.SherdogParserException;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -90,14 +89,14 @@ public class Sherdog {
 	/**
 	 * Gets an organization via it's sherdog URL.
 	 *
-	 * @param organization An organization from the Promotions. enum
+	 * @param promotion A promotion from the Promotions. enum
 	 * @return an Promotion
 	 * @throws IOException            if connecting to sherdog fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
-	public Promotion getPromotion(Promotion organization) throws IOException, ParseException, ParserException {
-		return new PromotionParser(zoneId).parse(organization.url);
+	public Promotion getPromotion(Promotion promotion) throws IOException, ParseException, ParserException {
+		return new PromotionParser(zoneId).parse(promotion.getSherdogUrl());
 	}
 
 	/**
