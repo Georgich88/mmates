@@ -2,13 +2,13 @@ package com.mmates.core.model.people;
 
 import com.mmates.core.model.fights.Fight;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class Record {
 
     private Fighter fighter;
     private Fight fight;
-    private Date date;
+    private ZonedDateTime date;
 
     private int wins = 0;
     private int winsKo = 0;
