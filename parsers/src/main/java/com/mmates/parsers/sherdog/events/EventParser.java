@@ -19,9 +19,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -130,7 +132,7 @@ public class EventParser implements Parser<Event> {
      * @return a parsed event
      */
     @Override
-    public Event parseDocument(Document doc) {
+    public Event parseDocument(Document doc) throws ParseException {
 
         Event event = new Event();
 
@@ -199,7 +201,7 @@ public class EventParser implements Parser<Event> {
      * @throws ParseException
      * @throws IOException
      */
-    private void retrieveFights(Document doc, Event event) {
+    private void retrieveFights(Document doc, Event event) throws ParseException {
 
         if (isFastMode())
             return;
@@ -235,7 +237,7 @@ public class EventParser implements Parser<Event> {
         event.setFights(fights);
     }
 
-    private void defineResultMethod(Elements mainFightElement, Fight mainFight) {
+    private void defineResultMethod(Elements mainFightElement, Fight mainFight) throws ParseException {
 
         Elements mainTd = mainFightElement.select("td");
 
@@ -243,7 +245,10 @@ public class EventParser implements Parser<Event> {
 
             var winMethod = WinMethod.defineWinMethod(mainTd.get(1).html().replaceAll("<em(.*)<br>", "").trim());
             int winRound = Integer.parseInt(mainTd.get(3).html().replaceAll("<em(.*)<br>", "").trim());
-            float winTime = Float.parseFloat(mainTd.get(4).html().replaceAll("<em(.*)<br>", "").trim());
+            String minutesSecondsWinTime = mainTd.get(4).html().replaceAll("<em(.*)<br>", "").trim();
+            SimpleDateFormat minutesSecondsDateFormat = new SimpleDateFormat("mm:ss");
+            Date date = minutesSecondsDateFormat.parse(minutesSecondsWinTime);
+            int winTime = date.getSeconds();
 
             mainFight.setWinMethod(winMethod);
             mainFight.setWinRound(winRound);
@@ -342,8 +347,17 @@ public class EventParser implements Parser<Event> {
      * @param td element from Sherdog's table
      * @return get the time of the event
      */
-    private float getTime(Element td) {
-        return Float.parseFloat(td.html());
+    private int getTime(Element td) {
+
+        try {
+            SimpleDateFormat minutesSecondsDateFormat = new SimpleDateFormat("mm:ss");
+            Date date = minutesSecondsDateFormat.parse(td.html());
+            return date.getSeconds();
+
+        } catch (ParseException e) {
+            return 0;
+        }
+
     }
 
     /**
