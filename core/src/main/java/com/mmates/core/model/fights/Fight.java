@@ -21,7 +21,10 @@ public class Fight implements Loadable {
     private ZonedDateTime date;
     private FightResult result = FightResult.NOT_HAPPENED;
     private WinMethod winMethod;
-    private float winTime;
+    /**
+     * Win time of the round in seconds
+     */
+    private int winTime;
     private int winRound;
     private FightType type;
     private Map<SourceInformation, String> profiles = new HashMap<>();
@@ -109,11 +112,11 @@ public class Fight implements Loadable {
         this.winMethod = winMethod;
     }
 
-    public float getWinTime() {
+    public int getWinTime() {
         return winTime;
     }
 
-    public void setWinTime(float winTime) {
+    public void setWinTime(int winTime) {
         this.winTime = winTime;
     }
 
