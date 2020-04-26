@@ -25,22 +25,26 @@ import java.util.*;
 
 public class PromotionParser implements Parser<Promotion> {
 
-    public static final String MESSAGE_INFO_TEMPLATE_GETTING_NAME = "Getting name";
-    public static final String MESSAGE_INFO_TEMPLATE_GETTING_UPCOMING_EVENT = "Getting upcoming event";
-    public static final String MESSAGE_INFO_TEMPLATE_GETTING_PAST_EVENTS = "Getting past events";
-    public static final String MESSAGE_INFO_TEMPLATE_PARSING_PAGE = "Parsing page [{}]";
-    public static final String MESSAGE_INFO_TEMPLATE_PROCESSING_EVENT = "Processing event: [{}]";
-    public static final String MESSAGE_ERROR_TEMPLATE_CANNOT_FORMAT_DATE = "Cannot format date, event will not be added";
-    public static final String MESSAGE_INFO_TEMPLATE_FOUNDED_PROMOTION = "Founded promotion: [{}]";
-    public static final String MESSAGE_INFO_TEMPLATE_FOUNDED_PROMOTIONS_OVERALL = "Founded promotions overall: [{}]";
+    // Logger message templates constants
+    private static final String MESSAGE_INFO_TEMPLATE_GETTING_NAME = "Getting name";
+    private static final String MESSAGE_INFO_TEMPLATE_GETTING_UPCOMING_EVENT = "Getting upcoming event";
+    private static final String MESSAGE_INFO_TEMPLATE_GETTING_PAST_EVENTS = "Getting past events";
+    private static final String MESSAGE_INFO_TEMPLATE_PARSING_PAGE = "Parsing page [{}]";
+    private static final String MESSAGE_INFO_TEMPLATE_PROCESSING_EVENT = "Processing event: [{}]";
+    private static final String MESSAGE_INFO_TEMPLATE_FOUNDED_PROMOTION = "Founded promotion: [{}]";
+    private static final String MESSAGE_INFO_TEMPLATE_FOUNDED_PROMOTIONS_OVERALL = "Founded promotions overall: [{}]";
+    private static final String MESSAGE_ERROR_TEMPLATE_CANNOT_FORMAT_DATE = "Cannot format date, event will not be added";
 
-    public static final String SELECTOR_TABLE_DATA = "td";
-    public static final String SELECTOR_RECENT_EVENTS_TABLE = "#recentfights_tab .event tr";
-    public static final String SELECTOR_EVENT_NAME = ".bio_organization .module_header h2[itemprop=\"name\"]";
-    public static final String SELECTOR_UPCOMING_EVENTS_TABLE = "#upcoming_tab .event tr";
-    public static final String SELECTOR_EVENT_NAME_ELEMENT = "span[itemprop=\"name\"]";
-    public static final String SELECTOR_EVENT_URL_ELEMENT = "a[itemprop=\"url\"]";
-    public static final String SELECTOR_EVENT_DATE_ELEMENT = "meta[itemprop=\"startDate\"]";
+    // Selectors
+    private static final String SELECTOR_TABLE_DATA = "td";
+    private static final String SELECTOR_RECENT_EVENTS_TABLE = "#recentfights_tab .event tr";
+    private static final String SELECTOR_EVENT_NAME = ".bio_organization .module_header h2[itemprop=\"name\"]";
+    private static final String SELECTOR_UPCOMING_EVENTS_TABLE = "#upcoming_tab .event tr";
+    private static final String SELECTOR_EVENT_NAME_ELEMENT = "span[itemprop=\"name\"]";
+    private static final String SELECTOR_EVENT_URL_ELEMENT = "a[itemprop=\"url\"]";
+    private static final String SELECTOR_EVENT_DATE_ELEMENT = "meta[itemprop=\"startDate\"]";
+    private static final String MESSAGE_INFO_TEMPLATE_GETTING_RECENT_EVENTS = "Getting recent events";
+    public static final String MESSAGE_INFO_TEMPLATE_GETTING_PROMOTIONS_FROM_EVENTS_PAGE = "Promotions from Events. Parsing page [{}]";
 
     private final Logger logger = LoggerFactory.getLogger(PromotionParser.class);
 
@@ -48,6 +52,7 @@ public class PromotionParser implements Parser<Promotion> {
     private final int NAME_COLUMN = 1;
     private final int LOCATION_COLUMN = 2;
     private final ZoneId ZONE_ID;
+
     private boolean fastMode = false;
 
     public boolean isFastMode() {
@@ -78,8 +83,7 @@ public class PromotionParser implements Parser<Promotion> {
 
     // Parsing logic
 
-    public List<Promotion> downloadPromotions(int start, int depth)
-            throws IOException, ParseException, ParserException {
+    public List<Promotion> downloadPromotions(int start, int depth) throws IOException {
 
         List<Promotion> promotions = new ArrayList<>();
         Map<String, Promotion> foundedPromotions = new HashMap<>();
@@ -89,11 +93,12 @@ public class PromotionParser implements Parser<Promotion> {
         ParserUtils.parseDocument(String.format(url, currentPageNumber));
         Document doc;
 
-        logger.info("Getting recent events");
+        logger.info(MESSAGE_INFO_TEMPLATE_GETTING_RECENT_EVENTS);
         List<Promotion> promotionsToAdd;
-        do {
-            // logger.info("Promotions from Events. Parsing page [{}]", currentPageNumber);
 
+        do {
+
+            logger.info(MESSAGE_INFO_TEMPLATE_GETTING_PROMOTIONS_FROM_EVENTS_PAGE, currentPageNumber);
             doc = ParserUtils.parseDocument(String.format(url, currentPageNumber));
             Elements events = doc.select(SELECTOR_RECENT_EVENTS_TABLE);
             promotionsToAdd = parsePromotionsFromEvent(events);
@@ -108,9 +113,7 @@ public class PromotionParser implements Parser<Promotion> {
 
         } while (promotionsToAdd.size() > 0 && currentPageNumber < start + depth);
 
-        foundedPromotions.forEach((k, v) -> {
-            promotions.add(v);
-        });
+        foundedPromotions.forEach((k, v) -> promotions.add(v));
 
         return promotions;
     }
@@ -120,10 +123,8 @@ public class PromotionParser implements Parser<Promotion> {
      *
      * @param trs the JSOUP TR elements from the event table
      * @return a list of events
-     * @throws ParseException if something is wrong with sherdog layout
      */
-    private List<Promotion> parsePromotionsFromEvent(Elements trs)
-            throws IOException, ParseException, ParserException {
+    private List<Promotion> parsePromotionsFromEvent(Elements trs) {
 
         List<Promotion> promotions = new ArrayList<>();
         Sherdog sherdog = new Sherdog.Builder()
@@ -149,13 +150,10 @@ public class PromotionParser implements Parser<Promotion> {
                     }
                 } catch (IOException err) {
                     logger.error(err.getMessage());
-                    err.printStackTrace();
                 } catch (ParseException err) {
                     logger.error(err.getMessage());
-                    err.printStackTrace();
                 } catch (ParserException err) {
                     logger.error(err.getMessage());
-                    err.printStackTrace();
                 }
 
             });
@@ -216,9 +214,8 @@ public class PromotionParser implements Parser<Promotion> {
      *
      * @param trs the Jsoup TR elements from the event table
      * @return a list of events
-     * @throws ParseException if something is wrong with sherdog layout
      */
-    private List<Event> parseEvent(Elements trs, Promotion promotion) throws ParseException {
+    private List<Event> parseEvent(Elements trs, Promotion promotion) {
 
         List<Event> events = new ArrayList<>();
 
@@ -280,8 +277,7 @@ public class PromotionParser implements Parser<Promotion> {
     private String parseEventUrl(Element td) {
         Elements url = td.select(SELECTOR_EVENT_URL_ELEMENT);
         if (url.size() > 0) {
-            String attr = url.get(0).attr("abs:href");
-            return attr;
+            return url.get(0).attr("abs:href");
         } else {
             return "";
         }
