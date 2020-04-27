@@ -29,6 +29,18 @@ import java.util.stream.Collectors;
 
 public class FighterParser implements Parser<Fighter> {
 
+	public static final String MESSAGE_INFO_TEMPLATE_REFRESH_FIGHTER = "Refreshing fighter {}";
+	// Selectors
+	public static final String SELECTOR_FIGHTER_NAME_ELEMENT = ".bio_fighter h1 span.fn";
+	public static final String SELECTOR_FIGHTER_NICKNAME_ELEMENT = ".bio_fighter span.nickname em";
+	public static final String SELECTOR_FIGHTER_BIRTH_DATE_ELEMENT = "span[itemprop=\"birthDate\"]";
+	public static final String SELECTOR_FIGHTER_HEIGHT_ELEMENT = ".size_info .height strong";
+	public static final String SELECTOR_FIGHTER_WEIGHT_ELEMENT = ".size_info .weight strong";
+	public static final String SELECTOR_FIGHTER_WINS_ELEMENT = ".bio_graph .counter";
+	public static final String SELECTOR_FIGHTER_WINS_METHODS_ELEMENTS = ".bio_graph:first-of-type .graph_tag";
+	public static final String SELECTOR_FIGHTER_LOSSES_ELEMENT = ".bio_graph.loser .counter";
+	public static final String SELECTOR_FIGHTER_LOSSES_METHODS_ELEMENT = ".bio_graph.loser .graph_tag";
+
 	private final SimpleDateFormat dataFormant = new SimpleDateFormat("yyyy-dd-MM");
 	private final PictureProcessor PROCESSOR;
 	private final ZoneId ZONE_ID;
@@ -98,10 +110,10 @@ public class FighterParser implements Parser<Fighter> {
 		Fighter fighter = new Fighter();
 		fighter.setSherdogUrl(SherdogParserUtils.getSherdogPageUrl(doc));
 
-		logger.info("Refreshing fighter {}", fighter.getSherdogUrl());
+		logger.info(MESSAGE_INFO_TEMPLATE_REFRESH_FIGHTER, fighter.getSherdogUrl());
 
 		try {
-			Elements name = doc.select(".bio_fighter h1 span.fn");
+			Elements name = doc.select(SELECTOR_FIGHTER_NAME_ELEMENT);
 			fighter.setName(name.get(0).html());
 		} catch (Exception e) {
 			// no info, skipping
@@ -109,7 +121,7 @@ public class FighterParser implements Parser<Fighter> {
 
 		// Getting nick name
 		try {
-			Elements nickname = doc.select(".bio_fighter span.nickname em");
+			Elements nickname = doc.select(SELECTOR_FIGHTER_NICKNAME_ELEMENT);
 			fighter.setNickname(nickname.get(0).html());
 		} catch (Exception e) {
 			// no info, skipping
@@ -117,33 +129,33 @@ public class FighterParser implements Parser<Fighter> {
 
 		// Birthday
 		try {
-			Elements birthday = doc.select("span[itemprop=\"birthDate\"]");
+			Elements birthday = doc.select(SELECTOR_FIGHTER_BIRTH_DATE_ELEMENT);
 			fighter.setBirthday(dataFormant.parse(birthday.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
 		// height
 		try {
-			Elements height = doc.select(".size_info .height strong");
+			Elements height = doc.select(SELECTOR_FIGHTER_HEIGHT_ELEMENT);
 			fighter.setHeight(Integer.parseInt(height.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
 		// weight
 		try {
-			Elements weight = doc.select(".size_info .weight strong");
+			Elements weight = doc.select(SELECTOR_FIGHTER_WEIGHT_ELEMENT);
 			fighter.setWeight(Integer.parseInt(weight.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
 		// wins
 		try {
-			Elements wins = doc.select(".bio_graph .counter");
+			Elements wins = doc.select(SELECTOR_FIGHTER_WINS_ELEMENT);
 			fighter.setWins(Integer.parseInt(wins.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
-		Elements winsMethods = doc.select(".bio_graph:first-of-type .graph_tag");
+		Elements winsMethods = doc.select(SELECTOR_FIGHTER_WINS_METHODS_ELEMENTS);
 		try {
 			fighter.setWinsKo(Integer.parseInt(winsMethods.get(METHOD_KO).html().split(" ")[0]));
 		} catch (Exception e) {
@@ -169,13 +181,13 @@ public class FighterParser implements Parser<Fighter> {
 		}
 		// loses
 		try {
-			Elements losses = doc.select(".bio_graph.loser .counter");
+			Elements losses = doc.select(SELECTOR_FIGHTER_LOSSES_ELEMENT);
 			fighter.setLosses(Integer.parseInt(losses.get(0).html()));
 		} catch (Exception e) {
 			// no info, skipping
 		}
 
-		Elements lossesMethods = doc.select(".bio_graph.loser .graph_tag");
+		Elements lossesMethods = doc.select(SELECTOR_FIGHTER_LOSSES_METHODS_ELEMENT);
 
 		try {
 
@@ -206,13 +218,13 @@ public class FighterParser implements Parser<Fighter> {
 		for (Element element : drawsNc) {
 
 			switch (element.select("span.result").html()) {
-			case "Draws":
-				fighter.setDraws(Integer.parseInt(element.select("span.counter").html()));
-				break;
+				case "Draws":
+					fighter.setDraws(Integer.parseInt(element.select("span.counter").html()));
+					break;
 
-			case "N/C":
-				fighter.setNc(Integer.parseInt(element.select("span.counter").html()));
-				break;
+				case "N/C":
+					fighter.setNc(Integer.parseInt(element.select("span.counter").html()));
+					break;
 			}
 
 		}
@@ -232,13 +244,13 @@ public class FighterParser implements Parser<Fighter> {
 
 					return FightType.fromString(categoryName);
 				})).forEach((key, div) -> div.stream().map(d -> d.select(".table table tr"))
-						.filter(tdList -> tdList.size() > 0).findFirst().ifPresent(tdList -> {
-							List<Fight> f = getFights(tdList, fighter);
+				.filter(tdList -> tdList.size() > 0).findFirst().ifPresent(tdList -> {
+					List<Fight> f = getFights(tdList, fighter);
 
-							f.forEach(fight -> fight.setType(key));
+					f.forEach(fight -> fight.setType(key));
 
-							fighter.getFights().addAll(f);
-						}));
+					fighter.getFights().addAll(f);
+				}));
 
 		List<Fight> sorted = fighter.getFights().stream()
 				.sorted(Comparator.comparing(Fight::getDate, Comparator.nullsFirst(Comparator.naturalOrder())))
@@ -280,13 +292,13 @@ public class FighterParser implements Parser<Fighter> {
 				fight.setFighter1(sFighter);
 
 				Elements tds = tr.select("td");
-				fight.setResult(getFightResult(tds.get(COLUMN_RESULT)));
-				fight.setFighter2(getOpponent(tds.get(COLUMN_OPPONENT)));
-				fight.setEvent(getEvent(tds.get(COLUMN_EVENT)));
-				fight.setDate(getDate(tds.get(COLUMN_EVENT)));
-				fight.setWinMethod(WinMethod.defineWinMethod(getWinMethod(tds.get(COLUMN_METHOD))));
-				fight.setWinRound(getWinRound(tds.get(COLUMN_ROUND)));
-				fight.setWinTime(getWinTime(tds.get(COLUMN_TIME)));
+				fight.setResult(parseFightResult(tds.get(COLUMN_RESULT)));
+				fight.setFighter2(parseOpponent(tds.get(COLUMN_OPPONENT)));
+				fight.setEvent(parseEvent(tds.get(COLUMN_EVENT)));
+				fight.setDate(parseDate(tds.get(COLUMN_EVENT)));
+				fight.setWinMethod(WinMethod.defineWinMethod(parseWinMethod(tds.get(COLUMN_METHOD))));
+				fight.setWinRound(parseWinRound(tds.get(COLUMN_ROUND)));
+				fight.setWinTime(parseWinTime(tds.get(COLUMN_TIME)));
 				fights.add(fight);
 				logger.info("{}", fight);
 			});
@@ -301,7 +313,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return a fight result enum
 	 */
-	private FightResult getFightResult(Element td) {
+	private FightResult parseFightResult(Element td) {
 		return ParserUtils.getFightResult(td);
 	}
 
@@ -311,7 +323,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return a fight result enum
 	 */
-	private Fighter getOpponent(Element td) {
+	private Fighter parseOpponent(Element td) {
 		Fighter opponent = new Fighter();
 		Element opponentLink = td.select("a").get(0);
 		opponent.setName(opponentLink.html());
@@ -326,7 +338,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return a sherdog base object with url and name
 	 */
-	private Event getEvent(Element td) {
+	private Event parseEvent(Element td) {
 		Element link = td.select("a").get(0);
 
 		Event event = new Event();
@@ -342,7 +354,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return the zonedatetime of the fight
 	 */
-	private ZonedDateTime getDate(Element td) {
+	private ZonedDateTime parseDate(Element td) {
 		// date
 		Element date = td.select("span.sub_line").first();
 
@@ -356,7 +368,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return a string with the finishing method
 	 */
-	private String getWinMethod(Element td) {
+	private String parseWinMethod(Element td) {
 		return td.html().replaceAll("<br>(.*)", "");
 	}
 
@@ -366,7 +378,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return an itneger
 	 */
-	private int getWinRound(Element td) {
+	private int parseWinRound(Element td) {
 		return Integer.parseInt(td.html());
 	}
 
@@ -376,7 +388,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @param td a td from sherdogs table
 	 * @return the time of win
 	 */
-	private int getWinTime(Element td) {
+	private int parseWinTime(Element td) {
 		try {
 			SimpleDateFormat minutesSecondsDateFormat = new SimpleDateFormat("mm:ss");
 			Date date = minutesSecondsDateFormat.parse(td.html());
