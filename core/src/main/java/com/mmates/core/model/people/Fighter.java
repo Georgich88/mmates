@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 public class Fighter implements Person, Loadable {
 
+    private UUID id;
     private String name;
     private String nickname = "";
     private int height = 0;
@@ -19,12 +20,27 @@ public class Fighter implements Person, Loadable {
     private Date birthday;
     private Date debut;
     private Team team;
+    private int wins = 0;
+    private int winsKo = 0;
+    private int winsSub = 0;
+    private int winsDec = 0;
+    private int winsOther = 0;
+    private int losses = 0;
+    private int lossesKo = 0;
+    private int lossesSub = 0;
+    private int lossesDec = 0;
+    private int lossesOther = 0;
+    private int draws = 0;
+    private int nc = 0;
+
     private String picture = "";
 
     private Map<SourceInformation, String> profiles = new HashMap<>();
 
     private List<Fight> fights = new ArrayList<>();
     private List<Record> records = new ArrayList<>();
+
+    // Fighter record
 
     private void calculateRecordByFights() {
         records.clear();
@@ -72,7 +88,25 @@ public class Fighter implements Person, Loadable {
         return currentRecord;
     }
 
+    // Profiles URL
+
+    public String getUrl(SourceInformation sourceInformation) {
+        return profiles.getOrDefault(sourceInformation, "");
+    }
+
+    public void setUrl(SourceInformation sourceInformation, String url) {
+        profiles.put(sourceInformation, url);
+    }
+
     // Getters and setters
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -146,6 +180,118 @@ public class Fighter implements Person, Loadable {
         this.team = team;
     }
 
+    public int getWins() {
+        return wins;
+    }
+
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
+
+    public int getWinsKo() {
+        return winsKo;
+    }
+
+    public void setWinsKo(int winsKo) {
+        this.winsKo = winsKo;
+    }
+
+    public int getWinsSub() {
+        return winsSub;
+    }
+
+    public void setWinsSub(int winsSub) {
+        this.winsSub = winsSub;
+    }
+
+    public int getWinsDec() {
+        return winsDec;
+    }
+
+    public void setWinsDec(int winsDec) {
+        this.winsDec = winsDec;
+    }
+
+    public int getWinsOther() {
+        return winsOther;
+    }
+
+    public void setWinsOther(int winsOther) {
+        this.winsOther = winsOther;
+    }
+
+    public int getLosses() {
+        return losses;
+    }
+
+    public void setLosses(int losses) {
+        this.losses = losses;
+    }
+
+    public int getLossesKo() {
+        return lossesKo;
+    }
+
+    public void setLossesKo(int lossesKo) {
+        this.lossesKo = lossesKo;
+    }
+
+    public int getLossesSub() {
+        return lossesSub;
+    }
+
+    public void setLossesSub(int lossesSub) {
+        this.lossesSub = lossesSub;
+    }
+
+    public int getLossesDec() {
+        return lossesDec;
+    }
+
+    public void setLossesDec(int lossesDec) {
+        this.lossesDec = lossesDec;
+    }
+
+    public int getLossesOther() {
+        return lossesOther;
+    }
+
+    public void setLossesOther(int lossesOther) {
+        this.lossesOther = lossesOther;
+    }
+
+    public int getDraws() {
+        return draws;
+    }
+
+    public void setDraws(int draws) {
+        this.draws = draws;
+    }
+
+    public int getNc() {
+        return nc;
+    }
+
+    public void setNc(int nc) {
+        this.nc = nc;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public Map<SourceInformation, String> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(Map<SourceInformation, String> profiles) {
+        this.profiles = profiles;
+    }
+
     public List<Fight> getFights() {
         return fights;
     }
@@ -160,13 +306,5 @@ public class Fighter implements Person, Loadable {
 
     public void setRecords(List<Record> records) {
         this.records = records;
-    }
-
-    public String getSherdogUrl() {
-        return profiles.getOrDefault(SourceInformation.SHERDOG, "");
-    }
-
-    public void setSherdogUrl(String sherdogUrl) {
-        profiles.put(SourceInformation.SHERDOG, sherdogUrl);
     }
 }

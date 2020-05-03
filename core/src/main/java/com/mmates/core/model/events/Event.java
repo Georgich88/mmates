@@ -3,20 +3,48 @@ package com.mmates.core.model.events;
 import com.mmates.core.model.Loadable;
 import com.mmates.core.model.fights.Fight;
 import com.mmates.core.model.promotion.Promotion;
+import com.mmates.core.model.sources.SourceInformation;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 public class Event implements Loadable {
 
+	private UUID id;
 	private String name;
 	private Promotion promotion;
-	private Date date;
+	private ZonedDateTime date;
 	private List<Fight> fights = new ArrayList<>();
 	private String location = "";
+	private Map<SourceInformation, String> profiles = new HashMap<>();
+
+	// Profiles URLs
+
+	@Override
+	public String getUrl(SourceInformation sourceInformation) {
+		return profiles.getOrDefault(sourceInformation, "");
+	}
+
+	@Override
+	public void setUrl(SourceInformation sourceInformation, String url) {
+		profiles.put(sourceInformation, url);
+	}
+
+	// Constructors
+
+	public Event() {
+	}
+
 
 	// Getters and setters
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;
@@ -34,11 +62,11 @@ public class Event implements Loadable {
 		this.promotion = promotion;
 	}
 
-	public Date getDate() {
+	public ZonedDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(ZonedDateTime date) {
 		this.date = date;
 	}
 
@@ -57,4 +85,29 @@ public class Event implements Loadable {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+
+	public Map<SourceInformation, String> getProfiles() {
+		return profiles;
+	}
+
+	public void setProfiles(Map<SourceInformation, String> profiles) {
+		this.profiles = profiles;
+	}
+
+
+	// Object inherited methods
+
+	@Override
+	public String toString() {
+		return new StringJoiner(", ", Event.class.getSimpleName() + "[", "]")
+				.add("id=" + id)
+				.add("name='" + name + "'")
+				.add("promotion=" + promotion)
+				.add("date=" + date)
+				.add("location='" + location + "'")
+				.add("profiles=" + profiles)
+				.toString();
+	}
+
+
 }
