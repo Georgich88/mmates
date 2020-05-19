@@ -4,9 +4,15 @@ import com.mmates.core.model.fights.Fight;
 import com.mmates.core.model.fights.FightResult;
 import com.mmates.core.model.fights.FightType;
 import com.mmates.core.model.people.Fighter;
+import com.mmates.parsers.common.utils.Constants;
 import com.mmates.parsers.tapology.Tapology;
 import org.jsoup.nodes.Document;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
@@ -71,4 +77,45 @@ public class TapologyParserUtils {
 
         return url.replace("http://", "https://");
     }
+
+
+    /**
+     * Converts a String to the given timezone.
+     *
+     * @param date   Date to format
+     * @param zoneId Zone id to convert from sherdog's time
+     * @return the converted zonedatetime
+     */
+    public static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId) throws DateTimeParseException {
+        ZonedDateTime usDate = ZonedDateTime.parse(date).withZoneSameInstant(ZoneId.of(Constants.SHERDOG_TIME_ZONE));
+        return usDate.withZoneSameInstant(zoneId);
+    }
+
+    /**
+     * Converts a String to the given timezone.
+     *
+     * @param date      Date to format
+     * @param zoneId    Zone id to convert from sherdog's time
+     * @param formatter Formatter for exotic date format
+     * @return the converted zonedatetime
+     */
+    public static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId, DateTimeFormatter formatter)
+            throws DateTimeParseException {
+        try {
+            // noticed that date not parsed with non-US locale. For me this fix is helpful
+            LocalDate localDate = LocalDate.parse(date, formatter);
+            ZonedDateTime usDate = localDate.atStartOfDay(zoneId);
+            return usDate.withZoneSameInstant(zoneId);
+        } catch (Exception e) {
+            // In case the parsing fail, we try without time
+            try {
+                ZonedDateTime usDate = LocalDate.parse(date, formatter)
+                        .atStartOfDay(ZoneId.of(Constants.SHERDOG_TIME_ZONE));
+                return usDate.withZoneSameInstant(zoneId);
+            } catch (DateTimeParseException e2) {
+                return null;
+            }
+        }
+    }
+
 }

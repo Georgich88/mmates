@@ -192,10 +192,10 @@ public class EventParser implements Parser<Event> {
         if (isFastMode())
             return;
 
-        Elements date = doc.select(".authors_info .date meta[itemprop=\"startDate\"]");
+        Elements date = doc.select(".right .clearfix .header");
         // TODO: get date to proper format
         try {
-            event.setDate(ParserUtils.getDateFromStringToZoneId(date.first().attr("content"), ZONE_ID));
+            event.setDate(TapologyParserUtils.getDateFromStringToZoneId(date.first().getElementsByTag("li").text(), ZONE_ID));
         } catch (DateTimeParseException error) {
             logger.error("Couldn't parse date", error);
         }
