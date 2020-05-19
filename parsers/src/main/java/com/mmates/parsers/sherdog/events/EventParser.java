@@ -37,7 +37,25 @@ public class EventParser implements Parser<Event> {
     private static final int METHOD_COLUMN = 4;
     private static final int ROUND_COLUMN = 5;
     private static final int TIME_COLUMN = 6;
+
+    // Selectors
     public static final String SELECTOR_TABLE_DATA = "td";
+    public static final String SELECTOR_RECENT_EVENTS_TABLE = "#recentfights_tab .event tr";
+    public static final String MESSAGE_INFO_GETTING_RECENT_EVENTS = "Getting recent events {} ";
+    public static final String MESSAGE_ERROR_CANNOT_PARSE_DATE = "Couldn't parse date";
+    public static final String SELECTOR_PROMOTION_NAME = "span[itemprop=\"name\"]";
+    public static final String SELECTOR_PROMOTION_URL = "abs:href";
+    public static final String SELECTOR_PROMOTION = ".header .section_title h2 a";
+    public static final String MESSAGE_ERROR_PROMOTION_IS_NOT_IN_SHERDOG_DATABASE = "Promotion for the event {} is not in Sherdog database";
+    public static final String SELECTOR_LOCATION = "span[itemprop=\"location\"]";
+    public static final String SELECTOR_EVENT_NAME = ".header .section_title h1 span[itemprop=\"name\"]";
+    public static final String SELECTOR_MAIN_FIGHT = ".content.event";
+    public static final String SELECTOR_MAIN_FIGHT_FIGHTERS = "h3 a";
+    public static final String SELECTOR_EVENT_FIGHTS = ".event_match table tr";
+    public static final String SELECTOR_EVENT_DATE = ".authors_info .date meta[itemprop=\"startDate\"]";
+    public static final String SELECTOR_FIGHTER_URL = "abs:href";
+    public static final String SELECTOR_FIGHTER_NAME = "span[itemprop=\"name\"]";
+    public static final String SELECTOR_FIGHTER_DETAILS = "a[itemprop=\"url\"]";
 
     private final ZoneId ZONE_ID;
 
@@ -94,12 +112,12 @@ public class EventParser implements Parser<Event> {
         Sherdog sherdog = new Sherdog.Builder().withTimezone(Constants.SHERDOG_TIME_ZONE).build();
         sherdog.setFastMode(isFastMode());
 
-        logger.info("Getting recent events {} ", String.format(url, currentPageNumber));
+        logger.info(MESSAGE_INFO_GETTING_RECENT_EVENTS, String.format(url, currentPageNumber));
 
         do {
 
             Document doc = ParserUtils.parseDocument(String.format(url, currentPageNumber));
-            Elements eventElements = doc.select("#recentfights_tab .event tr");
+            Elements eventElements = doc.select(SELECTOR_RECENT_EVENTS_TABLE);
 
             if (eventElements.size() > 0) {
                 eventElements.remove(0);
@@ -167,26 +185,26 @@ public class EventParser implements Parser<Event> {
         if (isFastMode())
             return;
 
-        Elements date = doc.select(".authors_info .date meta[itemprop=\"startDate\"]");
+        Elements date = doc.select(SELECTOR_EVENT_DATE);
         // TODO: get date to proper format
         try {
             event.setDate(ParserUtils.getDateFromStringToZoneId(date.first().attr("content"), ZONE_ID));
         } catch (DateTimeParseException error) {
-            logger.error("Couldn't parse date", error);
+            logger.error(MESSAGE_ERROR_CANNOT_PARSE_DATE, error);
         }
     }
 
     private void parseDocumentPromotion(Document doc, Event event) {
 
-        Elements elements = doc.select(".header .section_title h2 a");
+        Elements elements = doc.select(SELECTOR_PROMOTION);
         if (elements.size() == 0) {
-            // Promotion is not in Sherdog database.
+            logger.info(MESSAGE_ERROR_PROMOTION_IS_NOT_IN_SHERDOG_DATABASE, event.getName());
             return;
         }
-        Element org = elements.get(0);
+        Element promotionElement = elements.get(0);
         Promotion promotion = new Promotion();
-        promotion.setSherdogUrl(org.attr("abs:href"));
-        promotion.setName(org.select("span[itemprop=\"name\"]").get(0).html());
+        promotion.setSherdogUrl(promotionElement.attr(SELECTOR_PROMOTION_URL));
+        promotion.setName(promotionElement.select(SELECTOR_PROMOTION_NAME).get(0).html());
 
         event.setPromotion(promotion);
     }
@@ -196,13 +214,13 @@ public class EventParser implements Parser<Event> {
         if (isFastMode())
             return;
 
-        Elements location = doc.select("span[itemprop=\"location\"]");
+        Elements location = doc.select(SELECTOR_LOCATION);
         event.setLocation(location.html().replace("<br>", " - "));
     }
 
     private void parseEventName(Document doc, Event event) {
 
-        Elements name = doc.select(".header .section_title h1 span[itemprop=\"name\"]");
+        Elements name = doc.select(SELECTOR_EVENT_NAME);
         event.setName(name.html().replace("<br>", " - "));
 
     }
@@ -226,9 +244,9 @@ public class EventParser implements Parser<Event> {
         List<Fight> fights = new ArrayList<>();
 
         // Checking on main event
-        Elements mainFightElement = doc.select(".content.event");
+        Elements mainFightElement = doc.select(SELECTOR_MAIN_FIGHT);
 
-        Elements fighters = mainFightElement.select("h3 a");
+        Elements fighters = mainFightElement.select(SELECTOR_MAIN_FIGHT_FIGHTERS);
 
         // Check if events has details about fighters.
         // For canceled events there is no info about main events and fighters.
@@ -245,7 +263,7 @@ public class EventParser implements Parser<Event> {
             fights.add(mainFight);
         }
 
-        Elements tds = doc.select(".event_match table tr");
+        Elements tds = doc.select(SELECTOR_EVENT_FIGHTS);
 
         fights.addAll(parseEventFights(tds, event));
 
@@ -339,17 +357,17 @@ public class EventParser implements Parser<Event> {
      */
     private Fighter parseFighterFromElements(Element td) {
 
-        Elements name1 = td.select("span[itemprop=\"name\"]");
+        Elements nameElement = td.select(SELECTOR_FIGHTER_NAME);
 
-        if (name1.size() > 0) {
+        if (nameElement.size() > 0) {
 
-            String name = name1.get(0).html();
+            String name = nameElement.get(0).html();
 
-            Elements select = td.select("a[itemprop=\"url\"]");
+            Elements select = td.select(SELECTOR_FIGHTER_DETAILS);
 
             if (select.size() > 0) {
-                String url = select.get(0).attr("abs:href");
 
+                String url = select.get(0).attr(SELECTOR_FIGHTER_URL);
                 Fighter fighter = new Fighter();
                 fighter.setSherdogUrl(url);
                 fighter.setName(name);
