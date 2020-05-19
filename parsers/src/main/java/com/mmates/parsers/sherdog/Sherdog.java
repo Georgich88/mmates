@@ -19,7 +19,6 @@ public class Sherdog {
 
 	private ZoneId zoneId = ZoneId.systemDefault();
 	private PictureProcessor pictureProcessor = Constants.DEFAULT_PICTURE_PROCESSOR;
-	public final static String BASE_URL = "https://www.sherdog.com/";
 
 	public boolean fastMode = false;
 
