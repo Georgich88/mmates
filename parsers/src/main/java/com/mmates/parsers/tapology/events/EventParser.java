@@ -28,6 +28,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Class parses an event by using its Sherdog URL
@@ -40,6 +42,7 @@ public class EventParser implements Parser<Event> {
     private static final int ROUND_COLUMN = 5;
     private static final int TIME_COLUMN = 6;
     public static final String SELECTOR_TABLE_DATA = "td";
+    public static final String CSS_QUERY_SELECTOR_EVENT_NAME = ".eventPageHeaderContainer .eventPageHeaderTitles h1";
 
     private final ZoneId ZONE_ID;
 
@@ -82,8 +85,8 @@ public class EventParser implements Parser<Event> {
      *
      * @param url of the site page
      * @return the object parsed by the parser
-     * @throws IOException            if connecting to Sherdog fails
-     * @throws ParseException         if the page structure has changed
+     * @throws IOException     if connecting to Sherdog fails
+     * @throws ParseException  if the page structure has changed
      * @throws ParserException if anything related to the parser goes wrong
      */
     @Override
@@ -175,61 +178,46 @@ public class EventParser implements Parser<Event> {
     public Event parseDocument(Document doc) throws ParseException {
 
         Event event = new Event();
-
+        event.setName(doc.select(CSS_QUERY_SELECTOR_EVENT_NAME).text());
         event.setSherdogUrl(TapologyParserUtils.getSherdogPageUrl(doc));
-
-        parseEventName(doc, event);
-        parseDocumentPromotion(doc, event);
-        parseEventDate(doc, event);
+        parseEventAttributes(doc, event);
         retrieveFights(doc, event);
-        parseEventLocation(doc, event);
 
         return event;
     }
 
-    private void parseEventDate(Document doc, Event event) {
+    private void parseEventAttributes(Document doc, Event event) {
 
-        if (isFastMode())
-            return;
+        Elements eventProperties = doc.select(".right .clearfix li");
+        if (eventProperties.size() == 0) {
+            logger.error("Couldn't parse event attributes");
+        }
 
-        Elements date = doc.select(".right .clearfix .header");
+        eventProperties.forEach(property -> {
+            Elements attributes = property.children();
+            attributes.forEach(attribute -> {
+                extractEventProperty(event, attribute, "Location", Elements::text, event::setLocation, String::intern);
+                extractEventProperty(event, attribute, "Venue", Elements::text, event::setVenue, String::intern);
+            });
+        });
         // TODO: get date to proper format
         try {
+            Elements date = doc.select(".right .clearfix .header");
             event.setDate(TapologyParserUtils.getDateFromStringToZoneId(date.first().getElementsByTag("li").text(), ZONE_ID));
         } catch (DateTimeParseException error) {
             logger.error("Couldn't parse date", error);
         }
     }
 
-    private void parseDocumentPromotion(Document doc, Event event) {
-
-        Elements elements = doc.select(".header .section_title h2 a");
-        if (elements.size() == 0) {
-            // Promotion is not in Sherdog database.
-            return;
+    private <T> void extractEventProperty(final Event event, final Element element, final String propertyName,
+                                          final Function<Elements, String> extractor, final Consumer<T> setter, final Function<String, T> mapper) {
+        Elements labels = element.getElementsMatchingText(propertyName);
+        Elements values = labels.next();
+        if (values.size() > 0) {
+            final String text = extractor.apply(values);
+            T value = mapper.apply(text);
+            setter.accept(value);
         }
-        Element org = elements.get(0);
-        Promotion promotion = new Promotion();
-        promotion.setSherdogUrl(org.attr("abs:href"));
-        promotion.setName(org.select("span[itemprop=\"name\"]").get(0).html());
-
-        event.setPromotion(promotion);
-    }
-
-    private void parseEventLocation(Document doc, Event event) {
-
-        if (isFastMode())
-            return;
-
-        Elements location = doc.select("span[itemprop=\"location\"]");
-        event.setLocation(location.html().replace("<br>", " - "));
-    }
-
-    private void parseEventName(Document doc, Event event) {
-
-        Elements name = doc.select(".eventPageHeaderTitles h1");
-        event.setName(name.html());
-
     }
 
     /**
@@ -316,7 +304,6 @@ public class EventParser implements Parser<Event> {
         mainFighter.setName(mainFighterElement.select("span[itemprop=\"name\"]").html());
         return mainFighter;
     }
-
 
     /**
      * Parses fights of an old event
