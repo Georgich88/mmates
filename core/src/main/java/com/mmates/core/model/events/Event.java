@@ -16,6 +16,7 @@ public class Event implements Loadable {
 	private ZonedDateTime date;
 	private List<Fight> fights = new ArrayList<>();
 	private String location = "";
+	private String venue = "";
 	private Map<SourceInformation, String> profiles = new HashMap<>();
 
 	// Profiles URLs
@@ -70,20 +71,28 @@ public class Event implements Loadable {
 		this.date = date;
 	}
 
-	public List<Fight> getFights() {
-		return fights;
-	}
-
-	public void setFights(List<Fight> fights) {
-		this.fights = fights;
-	}
-
 	public String getLocation() {
 		return location;
 	}
 
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public String getVenue() {
+		return venue;
+	}
+
+	public void setVenue(String venue) {
+		this.venue = venue;
+	}
+
+	public List<Fight> getFights() {
+		return fights;
+	}
+
+	public void setFights(List<Fight> fights) {
+		this.fights = fights;
 	}
 
 	public Map<SourceInformation, String> getProfiles() {
@@ -94,7 +103,7 @@ public class Event implements Loadable {
 		this.profiles = profiles;
 	}
 
-
+	
 	// Object inherited methods
 
 	@Override
