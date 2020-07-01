@@ -18,9 +18,9 @@ public class Application {
     }
 
     public static void main(String[] args) throws ParseException, ParserException, IOException {
-        Event ufc1 = sherdog.getEvent("https://www.sherdog.com/events/UFC-1-The-Beginning-7");
+        //Event ufc1 = sherdog.getEvent("https://www.sherdog.com/events/UFC-1-The-Beginning-7");
         Event ufc153 = tapology.getEvent("https://www.tapology.com/fightcenter/events/14431-ufc-153");
-        System.out.println(ufc1);
+        //System.out.println(ufc1);
         System.out.println(ufc153);
     }
 }

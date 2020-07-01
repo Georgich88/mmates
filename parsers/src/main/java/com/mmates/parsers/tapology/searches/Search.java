@@ -9,11 +9,11 @@ public class Search {
     private String term;
     private SearchWeightClass weightClass = null;
 
-    private Tapology sherdog;
+    private Tapology tapology;
 
-    public Search(String term, Tapology sherdog) {
+    public Search(String term, Tapology tapology) {
         this.term = term;
-        this.sherdog = sherdog;
+        this.tapology = tapology;
     }
 
     /**
@@ -34,7 +34,7 @@ public class Search {
      * @throws IOException when the query fails
      */
     public SearchResults query() throws IOException {
-        return new SearchResults(this.term, this.weightClass, sherdog);
+        return new SearchResults(this.term, this.weightClass, tapology);
     }
 
 }

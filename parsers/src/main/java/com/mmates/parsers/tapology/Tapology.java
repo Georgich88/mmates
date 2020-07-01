@@ -59,25 +59,25 @@ public class Tapology {
 	}
 
 	/**
-	 * Gets an organization via it's Sherdog URL.
+	 * Gets an organization via it's Tapology URL.
 	 *
-	 * @param sherdogUrl Sherdog URL, can find predefined url in Promotions.* enum.
+	 * @param tapologyUrl Tapology URL, can find predefined url in Promotions.* enum.
 	 * @return an Promotion
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
-	public Promotion getPromotion(String sherdogUrl) throws IOException, ParseException, ParserException {
-		return new PromotionParser(zoneId).parse(sherdogUrl);
+	public Promotion getPromotion(String tapologyUrl) throws IOException, ParseException, ParserException {
+		return new PromotionParser(zoneId).parse(tapologyUrl);
 	}
 
 	/**
-	 * Gets an organization via it's sherdog page HTML, in case you want to have
+	 * Gets an organization via it's tapology page HTML, in case you want to have
 	 * your own way of getting teh HTML content
 	 *
 	 * @param html The web page HTML
 	 * @return an Promotion
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
@@ -86,16 +86,16 @@ public class Tapology {
 	}
 
 	/**
-	 * Gets an organization via it's sherdog URL.
+	 * Gets an organization via it's tapology URL.
 	 *
 	 * @param promotion A promotion from the Promotions. enum
 	 * @return an Promotion
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
 	public Promotion getPromotion(Promotion promotion) throws IOException, ParseException, ParserException {
-		return new PromotionParser(zoneId).parse(promotion.getSherdogUrl());
+		return new PromotionParser(zoneId).parse(promotion.getTapologyUrl());
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class Tapology {
 	 *
 	 * @param html The web page HTML
 	 * @return an Event
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
@@ -112,27 +112,27 @@ public class Tapology {
 	}
 
 	/**
-	 * Gets an event via it's sherdog URL.
+	 * Gets an event via it's tapology URL.
 	 *
-	 * @param sherdogUrl Sherdog URL, can be found in the list of event of an
+	 * @param tapologyUrl Tapology URL, can be found in the list of event of an
 	 *                   organization
 	 * @return an Event
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
-	public Event getEvent(String sherdogUrl) throws IOException, ParseException, ParserException {
+	public Event getEvent(String tapologyUrl) throws IOException, ParseException, ParserException {
 		EventParser eventParser = new EventParser(zoneId);
 		eventParser.setFastMode(this.isFastMode());
-		return eventParser.parse(sherdogUrl);
+		return eventParser.parse(tapologyUrl);
 	}
 
 	/**
-	 * Get a fighter via it;s sherdog page HTML
+	 * Get a fighter via it;s tapology page HTML
 	 *
 	 * @param html The web page HTML
 	 * @return a Fighter an all his fights
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
@@ -141,16 +141,16 @@ public class Tapology {
 	}
 
 	/**
-	 * Get a fighter via it;s sherdog URL.
+	 * Get a fighter via it;s tapology URL.
 	 *
-	 * @param sherdogUrl the shergod url of the fighter
+	 * @param tapologyUrl the shergod url of the fighter
 	 * @return a Fighter an all his fights
-	 * @throws IOException            if connecting to sherdog fails
+	 * @throws IOException            if connecting to tapology fails
 	 * @throws ParseException         if the page structure has changed
 	 * @throws ParserException if anythign related to the parser goes wrong
 	 */
-	public Fighter getFighter(String sherdogUrl) throws IOException, ParserException, ParseException {
-		return new FighterParser(pictureProcessor, zoneId).parse(sherdogUrl);
+	public Fighter getFighter(String tapologyUrl) throws IOException, ParserException, ParseException {
+		return new FighterParser(pictureProcessor, zoneId).parse(tapologyUrl);
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class Tapology {
 		 *
 		 * @param processor the picture processor to user with the parser check
 		 *                  {@link PictureProcessor} for more info
-		 * @return the sherdog current state
+		 * @return the tapology current state
 		 */
 		public Builder withPictureProcessor(PictureProcessor processor) {
 			parser.setPictureProcessor(processor);
@@ -194,8 +194,8 @@ public class Tapology {
 		 * Sets a timezone for the parser , this will help convert the timezone to the
 		 * wanted timezone
 		 *
-		 * @param timezone timezone for the sherdog builder
-		 * @return the sherdog current state
+		 * @param timezone timezone for the tapology builder
+		 * @return the tapology current state
 		 */
 		public Builder withTimezone(String timezone) {
 			parser.setZoneId(ZoneId.of(timezone));

@@ -63,12 +63,11 @@ public class EventParser implements Parser<Event> {
     public static final SimpleDateFormat MINUTES_SECONDS_DATE_FORMAT = new SimpleDateFormat("mm:ss");
 
     private final Logger logger = LoggerFactory.getLogger(EventParser.class);
-    private boolean fastMode = false;
 
+    private boolean fastMode = false;
     public boolean isFastMode() {
         return fastMode;
     }
-
     public void setFastMode(boolean fastMode) {
         this.fastMode = fastMode;
     }

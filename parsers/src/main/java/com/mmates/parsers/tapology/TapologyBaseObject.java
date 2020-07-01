@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class TapologyBaseObject implements Loadable {
 
 	private String name;
-	private String sherdogUrl;
+	private String tapologyUrl;
 	private LocalDate dateModified;
 
 	public String getName() {
@@ -21,8 +21,8 @@ public class TapologyBaseObject implements Loadable {
 		this.name = name;
 	}
 
-	public String getSherdogUrl() {
-		return sherdogUrl;
+	public String getTapologyUrl() {
+		return tapologyUrl;
 	}
 
 	@Override
@@ -35,8 +35,8 @@ public class TapologyBaseObject implements Loadable {
 
 	}
 
-	public void setSherdogUrl(String sherdogUrl) {
-		this.sherdogUrl = sherdogUrl;
+	public void setTapologyUrl(String tapologyUrl) {
+		this.tapologyUrl = tapologyUrl;
 	}
 
 	public LocalDate getDateModified() {
@@ -47,8 +47,8 @@ public class TapologyBaseObject implements Loadable {
 		this.dateModified = dateModified;
 	}
 
-	public static final String generateIdBySherdogUrl(String sherdogUrl) throws URISyntaxException {
-		URI uri = new URI(sherdogUrl);
+	public static final String generateIdByTapologyUrl(String tapologyUrl) throws URISyntaxException {
+		URI uri = new URI(tapologyUrl);
 		String[] segments = uri.getPath().split("/");
 		String idStr = segments[segments.length - 1];
 		return idStr;
@@ -56,6 +56,6 @@ public class TapologyBaseObject implements Loadable {
 
 	@Override
 	public String toString() {
-		return "SherdogBaseObject{" + "name='" + name + '\'' + ", sherdogUrl='" + sherdogUrl + '\'' + '}';
+		return "TapologyBaseObject{" + "name='" + name + '\'' + ", tapologyUrl='" + tapologyUrl + '\'' + '}';
 	}
 }
