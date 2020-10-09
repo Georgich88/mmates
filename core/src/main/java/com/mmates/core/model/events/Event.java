@@ -10,113 +10,139 @@ import java.util.*;
 
 public class Event implements Loadable {
 
-	private UUID id;
-	private String name;
-	private Promotion promotion;
-	private ZonedDateTime date;
-	private List<Fight> fights = new ArrayList<>();
-	private String location = "";
-	private String venue = "";
-	private Map<SourceInformation, String> profiles = new HashMap<>();
+	// Fields
 
-	// Profiles URLs
-
-	@Override
-	public String getUrl(SourceInformation sourceInformation) {
-		return profiles.getOrDefault(sourceInformation, "");
-	}
-
-	@Override
-	public void setUrl(SourceInformation sourceInformation, String url) {
-		profiles.put(sourceInformation, url);
-	}
+    private UUID id;
+    private String name;
+    private Promotion promotion;
+    private String ownership;
+    private ZonedDateTime date;
+    private List<Fight> fights = new ArrayList<>();
+    private String location = "";
+    private String venue = "";
+    private String enclosure = "";
+    private Map<SourceInformation, String> profiles;
 
 	// Constructors
 
-	public Event() {
-	}
+    public Event() {
+		profiles = new EnumMap<>(SourceInformation.class);
+    }
 
+	// Profiles URLs
 
-	// Getters and setters
+    @Override
+    public String getUrl(SourceInformation sourceInformation) {
+        return profiles.getOrDefault(sourceInformation, "");
+    }
 
-	public UUID getId() {
-		return id;
-	}
+    // Constructors
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
+    @Override
+    public void setUrl(SourceInformation sourceInformation, String url) {
+        profiles.put(sourceInformation, url);
+    }
 
-	public String getName() {
-		return name;
-	}
+    // Getters and setters
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public UUID getId() {
+        return id;
+    }
 
-	public Promotion getPromotion() {
-		return promotion;
-	}
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-	public void setPromotion(Promotion promotion) {
-		this.promotion = promotion;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public ZonedDateTime getDate() {
-		return date;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setDate(ZonedDateTime date) {
-		this.date = date;
-	}
+    public Promotion getPromotion() {
+        return promotion;
+    }
 
-	public String getLocation() {
-		return location;
-	}
+    public void setPromotion(Promotion promotion) {
+        this.promotion = promotion;
+    }
 
-	public void setLocation(String location) {
-		this.location = location;
-	}
+    public ZonedDateTime getDate() {
+        return date;
+    }
 
-	public String getVenue() {
-		return venue;
-	}
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
+    }
 
-	public void setVenue(String venue) {
-		this.venue = venue;
-	}
+    public String getLocation() {
+        return location;
+    }
 
-	public List<Fight> getFights() {
-		return fights;
-	}
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
-	public void setFights(List<Fight> fights) {
-		this.fights = fights;
-	}
+    public String getVenue() {
+        return venue;
+    }
 
-	public Map<SourceInformation, String> getProfiles() {
-		return profiles;
-	}
+    public void setVenue(String venue) {
+        this.venue = venue;
+    }
 
-	public void setProfiles(Map<SourceInformation, String> profiles) {
-		this.profiles = profiles;
-	}
+    public List<Fight> getFights() {
+        return fights;
+    }
 
-	
-	// Object inherited methods
+    public void setFights(List<Fight> fights) {
+        this.fights = fights;
+    }
 
-	@Override
-	public String toString() {
-		return new StringJoiner(", ", Event.class.getSimpleName() + "[", "]")
-				.add("id=" + id)
-				.add("name='" + name + "'")
-				.add("promotion=" + promotion)
-				.add("date=" + date)
-				.add("location='" + location + "'")
-				.add("profiles=" + profiles)
-				.toString();
-	}
+    public String getEnclosure() {
+        return enclosure;
+    }
+
+    public void setEnclosure(String enclosure) {
+        this.enclosure = enclosure;
+    }
+
+    public String getOwnership() {
+        return ownership;
+    }
+
+    public void setOwnership(String ownership) {
+        this.ownership = ownership;
+    }
+
+    public Map<SourceInformation, String> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(Map<SourceInformation, String> profiles) {
+        this.profiles = profiles;
+    }
+
+    public void addProfiles(Map<SourceInformation, String> profiles) {
+        this.profiles.putAll(profiles);
+    }
+
+    // Object inherited methods
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Event.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("name='" + name + "'")
+                .add("promotion=" + promotion)
+                .add("date=" + date)
+                .add("location='" + location + "'")
+                .add("profiles=" + profiles)
+                .toString();
+    }
+
 
 
 }
