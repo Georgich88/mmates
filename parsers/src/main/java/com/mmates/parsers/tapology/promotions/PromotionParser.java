@@ -172,7 +172,7 @@ public class PromotionParser implements Parser<Promotion> {
     public Promotion parseDocument(Document doc) throws IOException, ParseException {
 
         Promotion promotion = new Promotion();
-        promotion.setSherdogUrl(TapologyParserUtils.getSherdogPageUrl(doc));
+        promotion.setTapologyUrl(TapologyParserUtils.getTapologyPageUrl(doc));
 
         String url = promotion.getSherdogUrl();
         url += "/recent-events/%d";
@@ -287,7 +287,7 @@ public class PromotionParser implements Parser<Promotion> {
         Elements metaDate = element.select(SELECTOR_EVENT_DATE_ELEMENT);
         if (metaDate.size() > 0) {
             String date = metaDate.get(0).attr("content");
-            return ParserUtils.getDateFromStringToZoneId(date, ZONE_ID);
+            return ParserUtils.convertStringToZonedDate(date, ZONE_ID);
         } else {
             return null;
         }

@@ -108,17 +108,14 @@ public class FighterParser implements Parser<Fighter> {
 	@Override
 	public Fighter parseDocument(Document doc) throws IOException {
 		Fighter fighter = new Fighter();
-		fighter.setSherdogUrl(TapologyParserUtils.getSherdogPageUrl(doc));
-
+		fighter.setSherdogUrl(TapologyParserUtils.getTapologyPageUrl(doc));
 		logger.info(MESSAGE_INFO_TEMPLATE_REFRESH_FIGHTER, fighter.getSherdogUrl());
-
 		try {
 			Elements name = doc.select(SELECTOR_FIGHTER_NAME_ELEMENT);
 			fighter.setName(name.get(0).html());
 		} catch (Exception e) {
 			// no info, skipping
 		}
-
 		// Getting nick name
 		try {
 			Elements nickname = doc.select(SELECTOR_FIGHTER_NICKNAME_ELEMENT);
@@ -126,7 +123,6 @@ public class FighterParser implements Parser<Fighter> {
 		} catch (Exception e) {
 			// no info, skipping
 		}
-
 		// Birthday
 		try {
 			Elements birthday = doc.select(SELECTOR_FIGHTER_BIRTH_DATE_ELEMENT);
@@ -289,11 +285,11 @@ public class FighterParser implements Parser<Fighter> {
 
 			trs.forEach(tr -> {
 				Fight fight = new Fight();
-				fight.setFighter1(sFighter);
+				fight.setFirstFighter(sFighter);
 
 				Elements tds = tr.select("td");
 				fight.setResult(parseFightResult(tds.get(COLUMN_RESULT)));
-				fight.setFighter2(parseOpponent(tds.get(COLUMN_OPPONENT)));
+				fight.setSecondFighter(parseOpponent(tds.get(COLUMN_OPPONENT)));
 				fight.setEvent(parseEvent(tds.get(COLUMN_EVENT)));
 				fight.setDate(parseDate(tds.get(COLUMN_EVENT)));
 				fight.setWinMethod(WinMethod.defineWinMethod(parseWinMethod(tds.get(COLUMN_METHOD))));
@@ -314,7 +310,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @return a fight result enum
 	 */
 	private FightResult parseFightResult(Element td) {
-		return ParserUtils.getFightResult(td);
+		return ParserUtils.parseFightResult(td);
 	}
 
 	/**
@@ -358,7 +354,7 @@ public class FighterParser implements Parser<Fighter> {
 		// date
 		Element date = td.select("span.sub_line").first();
 
-		return ParserUtils.getDateFromStringToZoneId(date.html(), ZONE_ID,
+		return ParserUtils.convertStringToZonedDate(date.html(), ZONE_ID,
 				DateTimeFormatter.ofPattern("MMM / dd / yyyy", Locale.US));
 	}
 

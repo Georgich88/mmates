@@ -26,14 +26,14 @@ public class ParserUtils {
      * @param element Jsoup element
      * @return a FightResult
      */
-    public static FightResult getFightResult(Element element) {
-        if (element.select(".win").size() > 0) {
+    public static FightResult parseFightResult(Element element) {
+        if (!element.select(".win").isEmpty()) {
             return FightResult.FIGHTER_1_WIN;
-        } else if (element.select(".loss").size() > 0) {
+        } else if (!element.select(".loss").isEmpty()) {
             return FightResult.FIGHTER_2_WIN;
-        } else if (element.select(".draw").size() > 0) {
+        } else if (!element.select(".draw").isEmpty()) {
             return FightResult.DRAW;
-        } else if (element.select(".no_contest").size() > 0) {
+        } else if (!element.select(".no_contest").isEmpty()) {
             return FightResult.NO_CONTEST;
         } else {
             return FightResult.NOT_HAPPENED;
@@ -60,7 +60,7 @@ public class ParserUtils {
      * @param zoneId Zone id to convert from sherdog's time
      * @return the converted zonedatetime
      */
-    public static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId) throws DateTimeParseException {
+    public static ZonedDateTime convertStringToZonedDate(String date, ZoneId zoneId) throws DateTimeParseException {
         ZonedDateTime usDate = ZonedDateTime.parse(date).withZoneSameInstant(ZoneId.of(Constants.SHERDOG_TIME_ZONE));
         return usDate.withZoneSameInstant(zoneId);
     }
@@ -73,7 +73,7 @@ public class ParserUtils {
      * @param formatter Formatter for exotic date format
      * @return the converted zonedatetime
      */
-    public static ZonedDateTime getDateFromStringToZoneId(String date, ZoneId zoneId, DateTimeFormatter formatter)
+    public static ZonedDateTime convertStringToZonedDate(String date, ZoneId zoneId, DateTimeFormatter formatter)
             throws DateTimeParseException {
         try {
             // noticed that date not parsed with non-US locale. For me this fix is helpful

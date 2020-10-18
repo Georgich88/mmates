@@ -35,8 +35,8 @@ public class TapologyParserUtils {
                 Fighter fighter = parser.getFighter(f1.getSherdogUrl());
                 return fighter.getFights().stream()
                         .filter(f -> f.getResult() != FightResult.NOT_HAPPENED)
-                        .filter(f -> f.getFighter2() != null)
-                        .filter(f -> f.getFighter2().getSherdogUrl().equalsIgnoreCase(f2.getSherdogUrl())
+                        .filter(f -> f.getSecondFighter() != null)
+                        .filter(f -> f.getSecondFighter().getSherdogUrl().equalsIgnoreCase(f2.getSherdogUrl())
                                 && f.getEvent().getSherdogUrl().equalsIgnoreCase(fight.getEvent().getSherdogUrl()))
                         .findFirst().map(Fight::getType).orElse(FightType.PRO); // if we don't know, assume pro
             } catch (Exception e) {
@@ -49,13 +49,13 @@ public class TapologyParserUtils {
             return FightType.UPCOMING;
         }
 
-        Optional<Fighter> fighter = Optional.of(fight).map(Fight::getFighter1)
+        Optional<Fighter> fighter = Optional.of(fight).map(Fight::getFirstFighter)
                 .filter(f -> f.getSherdogUrl() != null && f.getSherdogUrl().length() > 0);
 
         if (fighter.isPresent()) {
-            return getType.apply(fighter.get(), fight.getFighter2());
+            return getType.apply(fighter.get(), fight.getSecondFighter());
         } else {
-            return getType.apply(fight.getFighter2(), fight.getFighter1());
+            return getType.apply(fight.getSecondFighter(), fight.getFirstFighter());
         }
 
     }
@@ -66,7 +66,7 @@ public class TapologyParserUtils {
      * @param doc the jsoup document to extract the page url from
      * @return the url of the document
      */
-    public static String getSherdogPageUrl(Document doc) {
+    public static String getTapologyPageUrl(Document doc) {
         String url = Optional.ofNullable(doc.head()).map(h -> h.select("meta")).map(
                 es -> es.stream().filter(e -> e.attr("property").equalsIgnoreCase("og:url")).findFirst().orElse(null))
                 .map(m -> m.attr("content")).orElse("");

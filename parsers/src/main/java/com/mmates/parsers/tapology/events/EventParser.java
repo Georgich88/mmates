@@ -5,7 +5,7 @@ import com.mmates.core.model.fights.Fight;
 import com.mmates.core.model.fights.FightResult;
 import com.mmates.core.model.fights.WinMethod;
 import com.mmates.core.model.people.Fighter;
-import com.mmates.core.model.promotion.Promotion;
+import com.mmates.core.model.sources.SourceInformation;
 import com.mmates.parsers.common.Parser;
 import com.mmates.parsers.common.exceptions.NotParserSourceURLException;
 import com.mmates.parsers.common.exceptions.ParserException;
@@ -27,6 +27,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -159,9 +160,8 @@ public class EventParser implements Parser<Event> {
     // TODO: Refactoring, duplicated method with PromotionParser.
     private String getEventUrl(Element td) {
         Elements url = td.select("a[itemprop=\"url\"]");
-        if (url.size() > 0) {
-            String attr = url.get(0).attr("abs:href");
-            return attr;
+        if (!url.isEmpty()) {
+            return url.get(0).attr("abs:href");
         } else {
             return "";
         }
@@ -179,7 +179,7 @@ public class EventParser implements Parser<Event> {
 
         Event event = new Event();
         event.setName(doc.select(CSS_QUERY_SELECTOR_EVENT_NAME).text());
-        event.setSherdogUrl(TapologyParserUtils.getSherdogPageUrl(doc));
+        event.setTapologyUrl(TapologyParserUtils.getTapologyPageUrl(doc));
         parseEventAttributes(doc, event);
         retrieveFights(doc, event);
 
@@ -196,10 +196,16 @@ public class EventParser implements Parser<Event> {
         eventProperties.forEach(property -> {
             Elements attributes = property.children();
             attributes.forEach(attribute -> {
-                extractEventProperty(event, attribute, "Location", Elements::text, event::setLocation, String::intern);
-                extractEventProperty(event, attribute, "Venue", Elements::text, event::setVenue, String::intern);
+                extractEventProperty(event, attribute, "Location", Elements::text, String::intern, event::setLocation);
+                extractEventProperty(event, attribute, "Venue", Elements::text, String::intern, event::setVenue);
+                extractEventProperty(event, attribute, "Enclosure", Elements::text, String::intern, event::setEnclosure);
+                extractEventProperty(event, attribute, "Location", Elements::text, String::intern, event::setLocation);
+                extractEventProperty(event, attribute, "Ownership", Elements::text, String::intern, event::setOwnership);
+                extractEventLinks(event, attribute, "Event Links", this::getSourceInformationMapper, map -> map, event::addProfiles);
+
             });
         });
+
         // TODO: get date to proper format
         try {
             Elements date = doc.select(".right .clearfix .header");
@@ -209,12 +215,38 @@ public class EventParser implements Parser<Event> {
         }
     }
 
-    private <T> void extractEventProperty(final Event event, final Element element, final String propertyName,
-                                          final Function<Elements, String> extractor, final Consumer<T> setter, final Function<String, T> mapper) {
+    private HashMap<SourceInformation, String> getSourceInformationMapper(Elements elements) {
+        HashMap<SourceInformation, String> map = new HashMap<>();
+        elements.forEach(element -> {
+            Elements links = element.getElementsByAttribute("href");
+            links.forEach(link -> {
+                String url = link.attr("href");
+                SourceInformation source = SourceInformation.defineSourceByUrl(url);
+                if (!url.isEmpty() && source != null) {
+                    map.put(source, url);
+                }
+            });
+        });
+        return map;
+    }
+
+    private <T, U> void extractEventProperty(final Event event, final Element element, final String propertyName,
+                                             final Function<Elements, U> extractor, final Function<U, T> mapper, final Consumer<T> setter) {
         Elements labels = element.getElementsMatchingText(propertyName);
         Elements values = labels.next();
         if (values.size() > 0) {
-            final String text = extractor.apply(values);
+            final U text = extractor.apply(values);
+            T value = mapper.apply(text);
+            setter.accept(value);
+        }
+    }
+
+    private <T, U> void extractEventLinks(final Event event, final Element element, final String propertyName,
+                                          final Function<Elements, U> extractor, final Function<U, T> mapper, final Consumer<T> setter) {
+        Elements labels = element.getElementsMatchingText(propertyName);
+        Elements values = labels.nextAll();
+        if (values.size() > 0) {
+            final U text = extractor.apply(values);
             T value = mapper.apply(text);
             setter.accept(value);
         }
@@ -231,38 +263,16 @@ public class EventParser implements Parser<Event> {
      */
     private void retrieveFights(Document doc, Event event) throws ParseException {
 
-        if (isFastMode())
-            return;
-
-        // logger.info("Getting fights for event #{}[{}]", event.getSherdogUrl(),
-        // event.getName());
-        List<Fight> fights = new ArrayList<>();
-
-        // Checking on main event
-        Elements mainFightElement = doc.select(".content.event");
-
-        Elements fighters = mainFightElement.select("h3 a");
-
-        // Check if events has details about fighters.
-        // For canceled events there is no info about main events and fighters.
-        if (fighters.size() > 1) {
-
-            Fighter firstFighter = getFighterMainFight(fighters, 1);
-            Fighter secondFighter = getFighterMainFight(fighters, 2);
-            Fight mainFight = getMainFight(event, mainFightElement);
-            mainFight.setFighter1(firstFighter);
-            mainFight.setFighter2(secondFighter);
-            defineResultMethod(mainFightElement, mainFight);
-            mainFight.setDate(event.getDate());
-
-            fights.add(mainFight);
+        Elements eventFightCard = doc.select(".fightCard .fightCard .fightCardBout");
+        if (eventFightCard.size() == 0) {
+            logger.error("Couldn't parse an event bout");
         }
 
-        Elements tds = doc.select(".event_match table tr");
+        eventFightCard.forEach(fightCardElement -> {
+            // Check if it's a prediction
+            if (fightCardElement.select(".eventBoutPicks").size() > 0) return;
 
-        fights.addAll(parseEventFights(tds, event));
-
-        event.setFights(fights);
+        });
     }
 
     private void defineResultMethod(Elements mainFightElement, Fight mainFight) throws ParseException {
@@ -287,7 +297,7 @@ public class EventParser implements Parser<Event> {
     private Fight getMainFight(Event event, Elements mainFightElement) {
         Fight mainFight = new Fight();
         mainFight.setEvent(event);
-        mainFight.setResult(ParserUtils.getFightResult(mainFightElement.first()));
+        mainFight.setResult(ParserUtils.parseFightResult(mainFightElement.first()));
         return mainFight;
     }
 
@@ -325,8 +335,8 @@ public class EventParser implements Parser<Event> {
                 fight.setDate(event.getDate());
                 Elements tds = tr.select(SELECTOR_TABLE_DATA);
 
-                fight.setFighter1(parseFighterFromElements(tds.get(FIGHTER1_COLUMN)));
-                fight.setFighter2(parseFighterFromElements(tds.get(FIGHTER2_COLUMN)));
+                fight.setFirstFighter(parseFighterFromElements(tds.get(FIGHTER1_COLUMN)));
+                fight.setSecondFighter(parseFighterFromElements(tds.get(FIGHTER2_COLUMN)));
 
                 // Parse old fight, we can get the result
                 if (tds.size() == 7) {
@@ -417,7 +427,7 @@ public class EventParser implements Parser<Event> {
      * @return a fight result enumerator value
      */
     private FightResult parseWinResult(Element td) {
-        return ParserUtils.getFightResult(td);
+        return ParserUtils.parseFightResult(td);
     }
 
 }
