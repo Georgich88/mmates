@@ -6,32 +6,32 @@ import com.mmates.core.model.people.Fighter;
 import com.mmates.core.model.sources.SourceInformation;
 
 import java.time.ZonedDateTime;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.UUID;
+
+import static com.mmates.core.model.fights.FightResult.NOT_HAPPENED;
 
 public class Fight implements Loadable {
 
     private UUID id;
     private String name;
     private Event event;
-    private Fighter fighter1;
-    private Fighter fighter2;
+    private Fighter firstFighter;
+    private Fighter secondFighter;
     private ZonedDateTime date;
-    private FightResult result = FightResult.NOT_HAPPENED;
+    private FightResult result = NOT_HAPPENED;
     private WinMethod winMethod;
-    /**
-     * Win time of the round in seconds
-     */
-    private int winTime;
+    private int winTime; // in seconds
     private int winRound;
     private FightType type;
-    private Map<SourceInformation, String> profiles = new HashMap<>();
+    private Map<SourceInformation, String> profiles;
 
     // Constructors
 
     public Fight() {
+        profiles = new EnumMap<>(SourceInformation.class);
     }
 
     // Profiles URLs
@@ -72,20 +72,20 @@ public class Fight implements Loadable {
         this.event = event;
     }
 
-    public Fighter getFighter1() {
-        return fighter1;
+    public Fighter getFirstFighter() {
+        return firstFighter;
     }
 
-    public void setFighter1(Fighter fighter1) {
-        this.fighter1 = fighter1;
+    public void setFirstFighter(Fighter firstFighter) {
+        this.firstFighter = firstFighter;
     }
 
-    public Fighter getFighter2() {
-        return fighter2;
+    public Fighter getSecondFighter() {
+        return secondFighter;
     }
 
-    public void setFighter2(Fighter fighter2) {
-        this.fighter2 = fighter2;
+    public void setSecondFighter(Fighter secondFighter) {
+        this.secondFighter = secondFighter;
     }
 
     public ZonedDateTime getDate() {
@@ -144,6 +144,24 @@ public class Fight implements Loadable {
         this.profiles = profiles;
     }
 
+    // Object inherited methods
 
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Fight.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("name='" + name + "'")
+                .add("event=" + event)
+                .add("firstFighter=" + firstFighter)
+                .add("secondFighter=" + secondFighter)
+                .add("date=" + date)
+                .add("result=" + result)
+                .add("winMethod=" + winMethod)
+                .add("winTime=" + winTime)
+                .add("winRound=" + winRound)
+                .add("type=" + type)
+                .add("profiles=" + profiles)
+                .toString();
+    }
 
 }
