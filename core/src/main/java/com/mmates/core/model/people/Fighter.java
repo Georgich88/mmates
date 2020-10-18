@@ -307,4 +307,35 @@ public class Fighter implements Person, Loadable {
     public void setRecords(List<Record> records) {
         this.records = records;
     }
+
+    // Object inherited methods
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Fighter.class.getSimpleName() + "[", "]")
+                .add("id=" + id)
+                .add("name='" + name + "'")
+                .add("nickname='" + nickname + "'")
+                .add("height=" + height)
+                .add("reach=" + reach)
+                .add("legReach=" + legReach)
+                .add("weight=" + weight)
+                .add("birthday=" + birthday)
+                .add("debut=" + debut)
+                .add("team=" + team)
+                .add("wins=" + wins)
+                .add("winsKo=" + winsKo)
+                .add("winsSub=" + winsSub)
+                .add("winsDec=" + winsDec)
+                .add("winsOther=" + winsOther)
+                .add("losses=" + losses)
+                .add("lossesKo=" + lossesKo)
+                .add("lossesSub=" + lossesSub)
+                .add("lossesDec=" + lossesDec)
+                .add("lossesOther=" + lossesOther)
+                .add("draws=" + draws)
+                .add("nc=" + nc)
+                .toString();
+    }
+
 }
