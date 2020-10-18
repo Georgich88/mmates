@@ -19,8 +19,8 @@ public enum RecordNumberType {
 
         var fightResult = fight.getResult();
         var winMethod = fight.getWinMethod();
-        var firstFighter = fight.getFighter1();
-        var secondFighter = fight.getFighter2();
+        var firstFighter = fight.getFirstFighter();
+        var secondFighter = fight.getSecondFighter();
 
         if (!fighter.equals(firstFighter) && !fighter.equals(secondFighter)) {
             throw new IllegalArgumentException(String.format(ERROR_MESSAGE_FIGHTER_FIGHT_DO_NOT_MATCH, fighter, fight));
