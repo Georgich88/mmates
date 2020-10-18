@@ -12,4 +12,8 @@ public class SherdogConstants {
 	public static final String BASE_ORGANIZATIONS_URL = "https://www.sherdog.com/organizations/";
 
 	public static final String SHERDOG_RECENT_EVENT_URL = "https://www.sherdog.com/events/recent/%d-page/";
+	public static final String SHERDOG_RECENT_EVENT_URL_TEMPLATE = "https://www.sherdog.com/events/recent/%d-page/";
+	public static final String MSG_INFO_GETTING_RECENT_EVENTS = "Getting recent events {} ";
+	public static final String SELECTOR_RECENT_EVENTS_TABLE = "#recentfights_tab .event tr";
+	public static final String SELECTOR_TABLE_DATA = "td";
 }

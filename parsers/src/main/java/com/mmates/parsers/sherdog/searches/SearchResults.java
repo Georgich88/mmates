@@ -110,7 +110,7 @@ public class SearchResults {
         return dryFighters.stream()
                 .map(f -> {
                     try {
-                        return sherdog.getFighter(f.getSherdogUrl());
+                        return sherdog.parseFighterFromUrl(f.getSherdogUrl());
                     } catch (IOException | ParseException e) {
                         return null; // TODO: delete null return
                     } catch (ParserException e) {
@@ -132,7 +132,7 @@ public class SearchResults {
         return dryEvents.stream()
                 .map(f -> {
                     try {
-                        return sherdog.getEvent(f.getSherdogUrl());
+                        return sherdog.parseEventFromUrl(f.getSherdogUrl());
                     } catch (IOException | ParseException | ParserException e) {
                         return null;
                     }

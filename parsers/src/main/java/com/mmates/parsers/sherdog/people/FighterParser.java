@@ -108,17 +108,14 @@ public class FighterParser implements Parser<Fighter> {
 	@Override
 	public Fighter parseDocument(Document doc) throws IOException {
 		Fighter fighter = new Fighter();
-		fighter.setSherdogUrl(SherdogParserUtils.getSherdogPageUrl(doc));
-
+		fighter.setSherdogUrl(SherdogParserUtils.retrieveSherdogPageUrl(doc));
 		logger.info(MESSAGE_INFO_TEMPLATE_REFRESH_FIGHTER, fighter.getSherdogUrl());
-
 		try {
 			Elements name = doc.select(SELECTOR_FIGHTER_NAME_ELEMENT);
 			fighter.setName(name.get(0).html());
 		} catch (Exception e) {
 			// no info, skipping
 		}
-
 		// Getting nick name
 		try {
 			Elements nickname = doc.select(SELECTOR_FIGHTER_NICKNAME_ELEMENT);
@@ -126,7 +123,6 @@ public class FighterParser implements Parser<Fighter> {
 		} catch (Exception e) {
 			// no info, skipping
 		}
-
 		// Birthday
 		try {
 			Elements birthday = doc.select(SELECTOR_FIGHTER_BIRTH_DATE_ELEMENT);
@@ -245,7 +241,7 @@ public class FighterParser implements Parser<Fighter> {
 					return FightType.fromString(categoryName);
 				})).forEach((key, div) -> div.stream().map(d -> d.select(".table table tr"))
 				.filter(tdList -> tdList.size() > 0).findFirst().ifPresent(tdList -> {
-					List<Fight> f = getFights(tdList, fighter);
+					List<Fight> f = parseFights(tdList, fighter);
 
 					f.forEach(fight -> fight.setType(key));
 
@@ -271,34 +267,29 @@ public class FighterParser implements Parser<Fighter> {
 	/**
 	 * Get a fighter fights
 	 *
-	 * @param trs     JSOUP TRs document
+	 * @param tableRows     JSOUP TRs document
 	 * @param fighter a fighter to parse against
 	 */
-	private List<Fight> getFights(Elements trs, Fighter fighter) throws ArrayIndexOutOfBoundsException {
+	private List<Fight> parseFights(Elements tableRows, Fighter fighter) throws ArrayIndexOutOfBoundsException {
 		List<Fight> fights = new ArrayList<>();
-
-		logger.info("{} TRs to parse through", trs.size());
-
+		logger.info("{} TRs to parse through", tableRows.size());
 		Fighter sFighter = new Fighter();
 		sFighter.setName(fighter.getName());
 		sFighter.setSherdogUrl(fighter.getSherdogUrl());
-
 		// removing header row...
-		if (trs.size() > 0) {
-			trs.remove(0);
-
-			trs.forEach(tr -> {
+		if (!tableRows.isEmpty()) {
+			tableRows.remove(0);
+			tableRows.forEach(tr -> {
 				Fight fight = new Fight();
-				fight.setFighter1(sFighter);
-
-				Elements tds = tr.select("td");
-				fight.setResult(parseFightResult(tds.get(COLUMN_RESULT)));
-				fight.setFighter2(parseOpponent(tds.get(COLUMN_OPPONENT)));
-				fight.setEvent(parseEvent(tds.get(COLUMN_EVENT)));
-				fight.setDate(parseDate(tds.get(COLUMN_EVENT)));
-				fight.setWinMethod(WinMethod.defineWinMethod(parseWinMethod(tds.get(COLUMN_METHOD))));
-				fight.setWinRound(parseWinRound(tds.get(COLUMN_ROUND)));
-				fight.setWinTime(parseWinTime(tds.get(COLUMN_TIME)));
+				fight.setFirstFighter(sFighter);
+				Elements dataCells = tr.select("td");
+				fight.setResult(parseFightResult(dataCells.get(COLUMN_RESULT)));
+				fight.setSecondFighter(parseOpponent(dataCells.get(COLUMN_OPPONENT)));
+				fight.setEvent(parseEvent(dataCells.get(COLUMN_EVENT)));
+				fight.setDate(parseDate(dataCells.get(COLUMN_EVENT)));
+				fight.setWinMethod(WinMethod.defineWinMethod(parseWinMethod(dataCells.get(COLUMN_METHOD))));
+				fight.setWinRound(parseWinRound(dataCells.get(COLUMN_ROUND)));
+				fight.setWinTime(parseWinTime(dataCells.get(COLUMN_TIME)));
 				fights.add(fight);
 				logger.info("{}", fight);
 			});
@@ -314,7 +305,7 @@ public class FighterParser implements Parser<Fighter> {
 	 * @return a fight result enum
 	 */
 	private FightResult parseFightResult(Element td) {
-		return ParserUtils.getFightResult(td);
+		return ParserUtils.parseFightResult(td);
 	}
 
 	/**
@@ -358,7 +349,7 @@ public class FighterParser implements Parser<Fighter> {
 		// date
 		Element date = td.select("span.sub_line").first();
 
-		return ParserUtils.getDateFromStringToZoneId(date.html(), ZONE_ID,
+		return ParserUtils.convertStringToZonedDate(date.html(), ZONE_ID,
 				DateTimeFormatter.ofPattern("MMM / dd / yyyy", Locale.US));
 	}
 

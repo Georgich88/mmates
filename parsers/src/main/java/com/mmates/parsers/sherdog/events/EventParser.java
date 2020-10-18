@@ -7,10 +7,6 @@ import com.mmates.core.model.fights.WinMethod;
 import com.mmates.core.model.people.Fighter;
 import com.mmates.core.model.promotion.Promotion;
 import com.mmates.parsers.common.Parser;
-import com.mmates.parsers.common.exceptions.ParserException;
-import com.mmates.parsers.common.utils.Constants;
-import com.mmates.parsers.common.utils.ParserUtils;
-import com.mmates.parsers.sherdog.Sherdog;
 import com.mmates.parsers.sherdog.utils.SherdogParserUtils;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,401 +14,101 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static com.mmates.core.model.fights.WinMethod.defineWinMethod;
+import static com.mmates.parsers.common.utils.ParserUtils.convertStringToZonedDate;
+import static com.mmates.parsers.common.utils.ParserUtils.parseFightResult;
+import static com.mmates.parsers.sherdog.events.EventParserConstants.*;
+import static com.mmates.parsers.sherdog.utils.SherdogConstants.SELECTOR_TABLE_DATA;
+import static java.lang.Integer.parseInt;
+import static java.time.ZoneId.systemDefault;
+import static java.util.Calendar.SECOND;
+
 /**
- * Class parses an event by using its Sherdog URL
+ * Parses an event by using its Sherdog URL.
+ *
+ * @author Georgy Isaev
+ * @version 0.1.0
  */
 public class EventParser implements Parser<Event> {
 
-    private static final int FIGHTER1_COLUMN = 1;
-    private static final int FIGHTER2_COLUMN = 3;
-    private static final int METHOD_COLUMN = 4;
-    private static final int ROUND_COLUMN = 5;
-    private static final int TIME_COLUMN = 6;
-
-    // Selectors
-    public static final String SELECTOR_TABLE_DATA = "td";
-    public static final String SELECTOR_RECENT_EVENTS_TABLE = "#recentfights_tab .event tr";
-    public static final String MESSAGE_INFO_GETTING_RECENT_EVENTS = "Getting recent events {} ";
-    public static final String MESSAGE_ERROR_CANNOT_PARSE_DATE = "Couldn't parse date";
-    public static final String SELECTOR_PROMOTION_NAME = "span[itemprop=\"name\"]";
-    public static final String SELECTOR_PROMOTION_URL = "abs:href";
-    public static final String SELECTOR_PROMOTION = ".header .section_title h2 a";
-    public static final String MESSAGE_ERROR_PROMOTION_IS_NOT_IN_SHERDOG_DATABASE = "Promotion for the event {} is not in Sherdog database";
-    public static final String SELECTOR_LOCATION = "span[itemprop=\"location\"]";
-    public static final String SELECTOR_EVENT_NAME = ".header .section_title h1 span[itemprop=\"name\"]";
-    public static final String SELECTOR_MAIN_FIGHT = ".content.event";
-    public static final String SELECTOR_MAIN_FIGHT_FIGHTERS = "h3 a";
-    public static final String SELECTOR_EVENT_FIGHTS = ".event_match table tr";
-    public static final String SELECTOR_EVENT_DATE = ".authors_info .date meta[itemprop=\"startDate\"]";
-    public static final String SELECTOR_FIGHTER_URL = "abs:href";
-    public static final String SELECTOR_FIGHTER_NAME = "span[itemprop=\"name\"]";
-    public static final String SELECTOR_FIGHTER_DETAILS = "a[itemprop=\"url\"]";
-
-    private final ZoneId ZONE_ID;
-
-    public static final String SHERDOG_RECENT_EVENT_URL_TEMPLATE = "https://www.sherdog.com/events/recent/%d-page/";
-    public static final SimpleDateFormat MINUTES_SECONDS_DATE_FORMAT = new SimpleDateFormat("mm:ss");
-
-    private final Logger logger = LoggerFactory.getLogger(EventParser.class);
-
-    private boolean fastMode = false;
-    public boolean isFastMode() {
-        return fastMode;
-    }
-    public void setFastMode(boolean fastMode) {
-        this.fastMode = fastMode;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(EventParser.class);
+    private final ZoneId timeZone;
 
     // Constructors
 
-    /**
-     * Creates an event parser with the default zone id
-     */
     public EventParser() {
-        this.ZONE_ID = ZoneId.systemDefault();
+        this(systemDefault());
     }
 
-    /**
-     * Setting a zoneId will convert the dates to the desired zone id
-     *
-     * @param zoneId specified zone id for time conversion
-     */
     public EventParser(ZoneId zoneId) {
-        this.ZONE_ID = zoneId;
+        this.timeZone = zoneId;
     }
 
     // Parsers
 
     /**
-     * Parses recent events from the event page
-     *
-     * @param start the start position
-     * @param depth amount of events to parse
-     * @return recent events
-     * @throws IOException
-     * @throws ParseException
-     * @throws ParserException
-     */
-    public List<Event> parseRecentEvents(int start, int depth) throws IOException, ParseException, ParserException {
-
-        List<Event> events = new ArrayList<>();
-
-        String url = SHERDOG_RECENT_EVENT_URL_TEMPLATE;
-        int currentPageNumber = start;
-        Sherdog sherdog = new Sherdog.Builder().withTimezone(Constants.SHERDOG_TIME_ZONE).build();
-        sherdog.setFastMode(isFastMode());
-
-        logger.info(MESSAGE_INFO_GETTING_RECENT_EVENTS, String.format(url, currentPageNumber));
-
-        do {
-
-            Document doc = ParserUtils.parseDocument(String.format(url, currentPageNumber));
-            Elements eventElements = doc.select(SELECTOR_RECENT_EVENTS_TABLE);
-
-            if (eventElements.size() > 0) {
-                eventElements.remove(0);
-                eventElements.forEach(tr -> {
-
-                    Elements tds = tr.select(SELECTOR_TABLE_DATA);
-                    String eventUrl = getEventUrl(tds.get(1));
-                    Event event;
-
-                    try {
-                        event = sherdog.getEvent(eventUrl);
-                        if (event != null) {
-                            events.add(event);
-                        }
-                    } catch (Throwable error) {
-                        logger.error(error.getMessage());
-                        error.printStackTrace();
-                    }
-
-                });
-            }
-
-            currentPageNumber++;
-
-        } while (currentPageNumber < start + depth);
-
-        return events;
-    }
-
-    // TODO: Refactoring, duplicated method with PromotionParser.
-    private String getEventUrl(Element td) {
-        Elements url = td.select("a[itemprop=\"url\"]");
-        if (url.size() > 0) {
-            String attr = url.get(0).attr("abs:href");
-            return attr;
-        } else {
-            return "";
-        }
-    }
-
-    /**
      * Parses an event from a jsoup document
      *
-     * @param doc the jsoup document
+     * @param document the jsoup document
      * @return a parsed event
      */
     @Override
-    public Event parseDocument(Document doc) throws ParseException {
-
+    public Event parseDocument(final Document document) throws ParseException {
         Event event = new Event();
-
-        event.setSherdogUrl(SherdogParserUtils.getSherdogPageUrl(doc));
-
-        parseEventName(doc, event);
-        parseDocumentPromotion(doc, event);
-        parseEventDate(doc, event);
-        retrieveFights(doc, event);
-        parseEventLocation(doc, event);
-
+        event.setSherdogUrl(SherdogParserUtils.retrieveSherdogPageUrl(document));
+        event.setName(parseEventName(document));
+        event.setPromotion(parseDocumentPromotion(document));
+        event.setDate(parseEventDate(document));
+        event.setFights(retrieveFights(document, event));
+        parseEventLocation(document, event);
         return event;
     }
 
-    private void parseEventDate(Document doc, Event event) {
-
-        if (isFastMode())
-            return;
-
-        Elements date = doc.select(SELECTOR_EVENT_DATE);
-        // TODO: get date to proper format
+    /**
+     * Retrieve a time from a Sherdog's event table cell data.
+     *
+     * @param timeDataCell element from Sherdog's table
+     * @return a fight time
+     */
+    private int parseTime(final Element timeDataCell) {
         try {
-            event.setDate(ParserUtils.getDateFromStringToZoneId(date.first().attr("content"), ZONE_ID));
-        } catch (DateTimeParseException error) {
-            logger.error(MESSAGE_ERROR_CANNOT_PARSE_DATE, error);
-        }
-    }
-
-    private void parseDocumentPromotion(Document doc, Event event) {
-
-        Elements elements = doc.select(SELECTOR_PROMOTION);
-        if (elements.size() == 0) {
-            logger.info(MESSAGE_ERROR_PROMOTION_IS_NOT_IN_SHERDOG_DATABASE, event.getName());
-            return;
-        }
-        Element promotionElement = elements.get(0);
-        Promotion promotion = new Promotion();
-        promotion.setSherdogUrl(promotionElement.attr(SELECTOR_PROMOTION_URL));
-        promotion.setName(promotionElement.select(SELECTOR_PROMOTION_NAME).get(0).html());
-
-        event.setPromotion(promotion);
-    }
-
-    private void parseEventLocation(Document doc, Event event) {
-
-        if (isFastMode())
-            return;
-
-        Elements location = doc.select(SELECTOR_LOCATION);
-        event.setLocation(location.html().replace("<br>", " - "));
-    }
-
-    private void parseEventName(Document doc, Event event) {
-
-        Elements name = doc.select(SELECTOR_EVENT_NAME);
-        event.setName(name.html().replace("<br>", " - "));
-
-    }
-
-    /**
-     * Gets the fights of the event
-     *
-     * @param doc   the jsoup HTML document
-     * @param event The current event
-     * @throws ParserException
-     * @throws ParseException
-     * @throws IOException
-     */
-    private void retrieveFights(Document doc, Event event) throws ParseException {
-
-        if (isFastMode())
-            return;
-
-        // logger.info("Getting fights for event #{}[{}]", event.getSherdogUrl(),
-        // event.getName());
-        List<Fight> fights = new ArrayList<>();
-
-        // Checking on main event
-        Elements mainFightElement = doc.select(SELECTOR_MAIN_FIGHT);
-
-        Elements fighters = mainFightElement.select(SELECTOR_MAIN_FIGHT_FIGHTERS);
-
-        // Check if events has details about fighters.
-        // For canceled events there is no info about main events and fighters.
-        if (fighters.size() > 1) {
-
-            Fighter firstFighter = getFighterMainFight(fighters, 1);
-            Fighter secondFighter = getFighterMainFight(fighters, 2);
-            Fight mainFight = getMainFight(event, mainFightElement);
-            mainFight.setFighter1(firstFighter);
-            mainFight.setFighter2(secondFighter);
-            defineResultMethod(mainFightElement, mainFight);
-            mainFight.setDate(event.getDate());
-
-            fights.add(mainFight);
-        }
-
-        Elements tds = doc.select(SELECTOR_EVENT_FIGHTS);
-
-        fights.addAll(parseEventFights(tds, event));
-
-        event.setFights(fights);
-    }
-
-    private void defineResultMethod(Elements mainFightElement, Fight mainFight) throws ParseException {
-
-        Elements mainTd = mainFightElement.select(SELECTOR_TABLE_DATA);
-
-        if (mainTd.size() > 0) {
-
-            var winMethod = WinMethod.defineWinMethod(mainTd.get(1).html().replaceAll("<em(.*)<br>", "").trim());
-            int winRound = Integer.parseInt(mainTd.get(3).html().replaceAll("<em(.*)<br>", "").trim());
-            String minutesSecondsWinTime = mainTd.get(4).html().replaceAll("<em(.*)<br>", "").trim();
-            Date date = MINUTES_SECONDS_DATE_FORMAT.parse(minutesSecondsWinTime);
-            int winTime = date.getSeconds();
-
-            mainFight.setWinMethod(winMethod);
-            mainFight.setWinRound(winRound);
-            mainFight.setWinTime(winTime);
-        }
-
-    }
-
-    private Fight getMainFight(Event event, Elements mainFightElement) {
-        Fight mainFight = new Fight();
-        mainFight.setEvent(event);
-        mainFight.setResult(ParserUtils.getFightResult(mainFightElement.first()));
-        return mainFight;
-    }
-
-    private Fighter getFighterMainFight(Elements fighters, int number) {
-
-        if (number != 1 && number != 2) {
-            throw new IllegalArgumentException(
-                    "Wrong fighter number, should be 1 or 2 (for first and second respectively)");
-        }
-
-        Fighter mainFighter = new Fighter();
-        Element mainFighterElement = fighters.get(number - 1);
-        mainFighter.setSherdogUrl(mainFighterElement.attr("abs:href"));
-        mainFighter.setName(mainFighterElement.select("span[itemprop=\"name\"]").html());
-        return mainFighter;
-    }
-
-
-    /**
-     * Parses fights of an old event
-     *
-     * @param trs
-     * @param event
-     * @return
-     */
-    private List<Fight> parseEventFights(Elements trs, Event event) {
-
-        List<Fight> fights = new ArrayList<>();
-
-        if (trs.size() > 0) {
-            trs.remove(0);
-
-            trs.forEach(tr -> {
-                Fight fight = new Fight();
-                fight.setEvent(event);
-                fight.setDate(event.getDate());
-                Elements tds = tr.select(SELECTOR_TABLE_DATA);
-
-                fight.setFighter1(parseFighterFromElements(tds.get(FIGHTER1_COLUMN)));
-                fight.setFighter2(parseFighterFromElements(tds.get(FIGHTER2_COLUMN)));
-
-                // Parse old fight, we can get the result
-                if (tds.size() == 7) {
-                    fight.setResult(parseWinResult(tds.get(FIGHTER1_COLUMN)));
-                    fight.setWinMethod(parseWinMethod(tds.get(METHOD_COLUMN)));
-                    fight.setWinRound(parseWinRound(tds.get(ROUND_COLUMN)));
-                    fight.setWinTime(getTime(tds.get(TIME_COLUMN)));
-                }
-
-                fights.add(fight);
-            });
-        }
-
-        return fights;
-    }
-
-    /**
-     * Gets a fighter
-     *
-     * @param td element from Sherdog's table
-     * @return return a Fighter with the fighter name and url
-     */
-    private Fighter parseFighterFromElements(Element td) {
-
-        Elements nameElement = td.select(SELECTOR_FIGHTER_NAME);
-
-        if (nameElement.size() > 0) {
-
-            String name = nameElement.get(0).html();
-
-            Elements select = td.select(SELECTOR_FIGHTER_DETAILS);
-
-            if (select.size() > 0) {
-
-                String url = select.get(0).attr(SELECTOR_FIGHTER_URL);
-                Fighter fighter = new Fighter();
-                fighter.setSherdogUrl(url);
-                fighter.setName(name);
-                return fighter;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Gets the time at which teh fight finished
-     *
-     * @param td element from Sherdog's table
-     * @return get the time of the event
-     */
-    private int getTime(Element td) {
-
-        try {
-            Date date = MINUTES_SECONDS_DATE_FORMAT.parse(td.html());
-            return date.getSeconds();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(MINUTES_SECONDS_DATE_FORMAT.parse(timeDataCell.html()));
+            return calendar.get(SECOND);
 
         } catch (ParseException e) {
-            return 0;
+            logger.error("", e);
         }
-
+        return 0;
     }
 
     /**
      * Parses the round at which the even finished
      *
-     * @param td element from Sherdog's table
+     * @param winRoundDataCell element from Sherdog's table
      * @return the round number
      */
-    private int parseWinRound(Element td) {
-        return Integer.parseInt(td.html());
+    private int parseWinRound(final Element winRoundDataCell) {
+        return parseInt(winRoundDataCell.html());
     }
 
     /**
      * Parses the win method of the event
      *
-     * @param td element from Sherdog's table
+     * @param winMethodDataCell element from Sherdog's table
      * @return get the win method
      */
-    private WinMethod parseWinMethod(Element td) {
-        return WinMethod.defineWinMethod(td.html().replaceAll("<br>(.*)", ""));
+    private WinMethod parseWinMethod(final Element winMethodDataCell) {
+        return defineWinMethod(winMethodDataCell.html().replaceAll("<br>(.*)", ""));
     }
 
     /**
@@ -421,8 +117,140 @@ public class EventParser implements Parser<Event> {
      * @param td element from Sherdog's table
      * @return a fight result enumerator value
      */
-    private FightResult parseWinResult(Element td) {
-        return ParserUtils.getFightResult(td);
+    private FightResult parseWinResult(final Element td) {
+        return parseFightResult(td);
+    }
+
+    private void validateFighterNumber(final int number) {
+        if (number < 1 || number > 2) {
+            throw new IllegalArgumentException(MSG_ERROR_WRONG_FIGHTER_NUMBER);
+        }
+    }
+
+    private Fight parseMainFight(Event event, Elements mainFightElement) {
+        Fight mainFight = new Fight();
+        mainFight.setEvent(event);
+        mainFight.setResult(parseFightResult(mainFightElement.first()));
+        return mainFight;
+    }
+
+    private Fighter parseFighterMainFight(Elements fighters, int number) {
+        validateFighterNumber(number);
+        Fighter mainFighter = new Fighter();
+        Element mainFighterElement = fighters.get(number - 1);
+        mainFighter.setSherdogUrl(mainFighterElement.attr("abs:href"));
+        mainFighter.setName(mainFighterElement.select("span[itemprop=\"name\"]").html());
+        return mainFighter;
+    }
+
+    private List<Fight> parseEventFights(final Elements tableRows, final Event event) {
+        List<Fight> fights = new ArrayList<>();
+        if (!tableRows.isEmpty()) {
+            tableRows.remove(0);
+            tableRows.forEach(tableRow -> {
+                Fight fight = new Fight();
+                fight.setEvent(event);
+                fight.setDate(event.getDate());
+                Elements rowCells = tableRow.select(SELECTOR_TABLE_DATA);
+                fight.setFirstFighter(parseFighterFromRowCell(rowCells.get(FIGHTER1_COLUMN)));
+                fight.setSecondFighter(parseFighterFromRowCell(rowCells.get(FIGHTER2_COLUMN)));
+                // Parse old fight, we can get the result
+                if (rowCells.size() == 7) {
+                    fight.setResult(parseWinResult(rowCells.get(FIGHTER1_COLUMN)));
+                    fight.setWinMethod(parseWinMethod(rowCells.get(METHOD_COLUMN)));
+                    fight.setWinRound(parseWinRound(rowCells.get(ROUND_COLUMN)));
+                    fight.setWinTime(parseTime(rowCells.get(TIME_COLUMN)));
+                }
+                fights.add(fight);
+            });
+        }
+        return fights;
+    }
+
+    private Fighter parseFighterFromRowCell(Element rowCell) {
+        Elements nameElement = rowCell.select(SELECTOR_FIGHTER_NAME);
+        if (!nameElement.isEmpty()) {
+            String name = nameElement.get(0).html();
+            Elements select = rowCell.select(SELECTOR_FIGHTER_DETAILS);
+            if (!select.isEmpty()) {
+                String url = select.get(0).attr(SELECTOR_FIGHTER_URL);
+                Fighter fighter = new Fighter();
+                fighter.setSherdogUrl(url);
+                fighter.setName(name);
+                return fighter;
+            }
+        }
+        return null;
+    }
+
+    private ZonedDateTime parseEventDate(Document document) {
+        Elements date = document.select(SELECTOR_EVENT_DATE);
+        try {
+            return convertStringToZonedDate(date.first().attr("content"), timeZone);
+        } catch (DateTimeParseException e) {
+            logger.error(MSG_ERROR_CANNOT_PARSE_DATE, e);
+        }
+        return null;
+    }
+
+    private Promotion parseDocumentPromotion(Document doc) {
+        Elements elements = doc.select(SELECTOR_PROMOTION);
+        if (elements.isEmpty()) {
+            logger.info(MSG_ERROR_CANNOT_PARSE_PROMOTION);
+            return null;
+        }
+        Element promotionElement = elements.get(0);
+        Promotion promotion = new Promotion();
+        promotion.setSherdogUrl(promotionElement.attr(SELECTOR_PROMOTION_URL));
+        promotion.setName(promotionElement.select(SELECTOR_PROMOTION_NAME).get(0).html());
+        return promotion;
+    }
+
+    private void parseEventLocation(Document doc, Event event) {
+        Elements location = doc.select(SELECTOR_LOCATION);
+        event.setLocation(location.html().replace("<br>", " - "));
+    }
+
+    private String parseEventName(Document doc) {
+        Elements name = doc.select(SELECTOR_EVENT_NAME);
+        return name.html().replace("<br>", " - ");
+    }
+
+    private List<Fight> retrieveFights(final Document document, final Event event) throws ParseException {
+        List<Fight> fights = new ArrayList<>();
+        final Elements mainFightElement = document.select(SELECTOR_MAIN_FIGHT);
+        final Elements fighters = mainFightElement.select(SELECTOR_MAIN_FIGHT_FIGHTERS);
+        // Check if events has details about fighters.
+        // For canceled events there is no info about main events and fighters.
+        if (fighters.size() > 1) {
+            Fighter firstFighter = parseFighterMainFight(fighters, 1);
+            Fighter secondFighter = parseFighterMainFight(fighters, 2);
+            Fight mainFight = parseMainFight(event, mainFightElement);
+            mainFight.setFirstFighter(firstFighter);
+            mainFight.setSecondFighter(secondFighter);
+            parseResult(mainFightElement, mainFight);
+            mainFight.setDate(event.getDate());
+            fights.add(mainFight);
+        }
+        Elements tds = document.select(SELECTOR_EVENT_FIGHTS);
+        fights.addAll(parseEventFights(tds, event));
+        return fights;
+    }
+
+    private void parseResult(Elements mainFightElement, Fight mainFight) throws ParseException {
+        final Elements mainFightDataCell = mainFightElement.select(SELECTOR_TABLE_DATA);
+        if (!mainFightDataCell.isEmpty()) {
+            var winMethod = defineWinMethod(mainFightDataCell.get(1).html().replaceAll("<em(.*)<br>", "").trim());
+            int winRound = parseInt(mainFightDataCell.get(3).html().replaceAll("<em(.*)<br>", "").trim());
+            String minutesSecondsWinTime = mainFightDataCell.get(4).html().replaceAll("<em(.*)<br>", "").trim();
+            Date date = MINUTES_SECONDS_DATE_FORMAT.parse(minutesSecondsWinTime);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int winTime = calendar.get(SECOND);
+            mainFight.setWinMethod(winMethod);
+            mainFight.setWinRound(winRound);
+            mainFight.setWinTime(winTime);
+        }
     }
 
 }
