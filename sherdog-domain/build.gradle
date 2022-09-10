@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.georgeisaev'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.2-SNAPSHOT'
 description = 'mmates-sherdog-domain'
 java.sourceCompatibility = JavaVersion.VERSION_17
 
