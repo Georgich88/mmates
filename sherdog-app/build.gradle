@@ -22,6 +22,7 @@ dependencies {
 
     // Project
     implementation project(':sherdog-domain')
+    implementation project(':common-parser-lib')
     implementation project(':sherdog-parser-lib')
 
     // Spring boot

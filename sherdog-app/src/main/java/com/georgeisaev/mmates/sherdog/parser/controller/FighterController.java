@@ -42,7 +42,7 @@ public class FighterController {
   }
 
   @PostMapping("/parsings")
-  public Publisher<ResponseEntity<Fighter>> parse(@RequestBody String url) throws IOException, ParseException {
+  public Publisher<ResponseEntity<Fighter>> parse(@RequestBody String url) throws IOException {
     return Mono.just(ResponseEntity.ok(fighterParserService.parse(url)));
   }
 
