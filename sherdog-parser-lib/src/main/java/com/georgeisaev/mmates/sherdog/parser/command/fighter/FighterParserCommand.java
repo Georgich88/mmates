@@ -1,7 +1,7 @@
-package com.georgeisaev.mmates.sherdog.parser.data.parser.fighter;
+package com.georgeisaev.mmates.sherdog.parser.command.fighter;
 
-import com.georgeisaev.mmates.common.parser.command.JsopAttributeParserCommand;
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
+import com.georgeisaev.mmates.sherdog.parser.command.Jsoup2SherdogParserCommand;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,8 +19,8 @@ import static com.georgeisaev.mmates.sherdog.parser.common.SherdogParserConstant
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum FighterAttributeParserCommand
-    implements JsopAttributeParserCommand<Fighter.FighterBuilder> {
+public enum FighterParserCommand
+    implements Jsoup2SherdogParserCommand<Fighter.FighterBuilder> {
 
   // name
   NAME("name", ".fighter-info h1[itemprop=\"name\"] .fn"),
@@ -56,7 +56,7 @@ public enum FighterAttributeParserCommand
   /** CSS-like element selector, that finds elements matching a query */
   String selector;
 
-  public static Collection<JsopAttributeParserCommand<Fighter.FighterBuilder>> availableCommands() {
+  public static Collection<Jsoup2SherdogParserCommand<Fighter.FighterBuilder>> availableCommands() {
     return List.of(values());
   }
 }

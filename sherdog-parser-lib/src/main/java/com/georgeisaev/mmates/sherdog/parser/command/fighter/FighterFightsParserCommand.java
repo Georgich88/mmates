@@ -1,6 +1,5 @@
-package com.georgeisaev.mmates.sherdog.parser.data.parser.fighter;
+package com.georgeisaev.mmates.sherdog.parser.command.fighter;
 
-import com.georgeisaev.mmates.common.parser.command.JsopAttributeParserCommand;
 import com.georgeisaev.mmates.common.parser.exception.ParserException;
 import com.georgeisaev.mmates.sherdog.domain.Event;
 import com.georgeisaev.mmates.sherdog.domain.Fight;
@@ -8,6 +7,7 @@ import com.georgeisaev.mmates.sherdog.domain.FightResult;
 import com.georgeisaev.mmates.sherdog.domain.FightType;
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.domain.WinMethod;
+import com.georgeisaev.mmates.sherdog.parser.command.Jsoup2SherdogParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.georgeisaev.mmates.common.parser.utils.DateTimeUtils.parseMinutesSeconds;
-import static com.georgeisaev.mmates.sherdog.parser.data.parser.fighter.FighterFightsAttributeParserCommand.FightTableColumns.COLUMN_EVENT;
-import static com.georgeisaev.mmates.sherdog.parser.data.parser.fighter.FighterFightsAttributeParserCommand.FightTableColumns.COLUMN_METHOD;
-import static com.georgeisaev.mmates.sherdog.parser.data.parser.fighter.FighterFightsAttributeParserCommand.FightTableColumns.COLUMN_OPPONENT;
-import static com.georgeisaev.mmates.sherdog.parser.data.parser.fighter.FighterFightsAttributeParserCommand.FightTableColumns.COLUMN_RESULT;
-import static com.georgeisaev.mmates.sherdog.parser.data.parser.fighter.FighterFightsAttributeParserCommand.FightTableColumns.COLUMN_ROUND;
-import static com.georgeisaev.mmates.sherdog.parser.data.parser.fighter.FighterFightsAttributeParserCommand.FightTableColumns.COLUMN_TIME;
+import static com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand.FightTableColumns.COLUMN_EVENT;
+import static com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand.FightTableColumns.COLUMN_METHOD;
+import static com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand.FightTableColumns.COLUMN_OPPONENT;
+import static com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand.FightTableColumns.COLUMN_RESULT;
+import static com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand.FightTableColumns.COLUMN_ROUND;
+import static com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand.FightTableColumns.COLUMN_TIME;
 import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.defineIdFromSherdogUrl;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.naturalOrder;
@@ -43,8 +43,8 @@ import static java.util.Comparator.nullsFirst;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum FighterFightsAttributeParserCommand
-    implements JsopAttributeParserCommand<Fighter.FighterBuilder> {
+public enum FighterFightsParserCommand
+    implements Jsoup2SherdogParserCommand<Fighter.FighterBuilder> {
 
   // fights history - pro
   FIGHTS("fights", ".tiled_bg.latest_features .slanted_title") {
@@ -109,7 +109,7 @@ public enum FighterFightsAttributeParserCommand
   /** CSS-like element selector, that finds elements matching a query */
   String selector;
 
-  public static Collection<JsopAttributeParserCommand<Fighter.FighterBuilder>> availableCommands() {
+  public static Collection<Jsoup2SherdogParserCommand<Fighter.FighterBuilder>> availableCommands() {
     return List.of(values());
   }
 

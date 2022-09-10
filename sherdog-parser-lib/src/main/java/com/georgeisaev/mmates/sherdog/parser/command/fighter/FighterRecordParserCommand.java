@@ -1,8 +1,8 @@
-package com.georgeisaev.mmates.sherdog.parser.data.parser.fighter;
+package com.georgeisaev.mmates.sherdog.parser.command.fighter;
 
-import com.georgeisaev.mmates.common.parser.command.JsopAttributeParserCommand;
 import com.georgeisaev.mmates.sherdog.domain.FighterRecord;
 import com.georgeisaev.mmates.sherdog.domain.FighterRecordDetails;
+import com.georgeisaev.mmates.sherdog.parser.command.Jsoup2SherdogParserCommand;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,8 +24,8 @@ import static java.lang.Integer.parseInt;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum FighterRecordAttributeParserCommand
-    implements JsopAttributeParserCommand<FighterRecord.FighterRecordBuilder> {
+public enum FighterRecordParserCommand
+    implements Jsoup2SherdogParserCommand<FighterRecord.FighterRecordBuilder> {
 
   // wins
   WINS_TOTAL("winsTotals", ".winloses.win span:nth-child(2)"),
@@ -54,7 +54,7 @@ public enum FighterRecordAttributeParserCommand
   /** CSS-like element selector, that finds elements matching a query */
   String selector;
 
-  public static Collection<FighterRecordAttributeParserCommand> availableCommands() {
+  public static Collection<FighterRecordParserCommand> availableCommands() {
     return List.of(values());
   }
 
