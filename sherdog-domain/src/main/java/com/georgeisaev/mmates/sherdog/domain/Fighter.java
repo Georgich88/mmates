@@ -14,55 +14,55 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Schema(name = "Fighter details")
+@Schema(description = "Fighter details")
 public class Fighter {
 
-  @Schema(name = "Id")
+  @Schema(description = "Id")
   String id;
 
-  @Schema(name = "Sherdog url")
+  @Schema(description = "Sherdog url")
   String sherdogUrl;
 
-  @Schema(name = "Sherdog picture url")
+  @Schema(description = "Sherdog picture url")
   String pictureUrl;
 
-  @Schema(name = "Name")
+  @Schema(description = "Name")
   String name;
 
-  @Schema(name = "Nickname")
+  @Schema(description = "Nickname")
   String nickname;
 
-  @Schema(name = "Birth date")
+  @Schema(description = "Birth date")
   LocalDate birthDate;
 
-  @Schema(name = "Address")
+  @Schema(description = "Address")
   String addressLocality;
 
-  @Schema(name = "Nationality")
+  @Schema(description = "Nationality")
   String nationality;
 
-  @Schema(name = "Height, ft")
+  @Schema(description = "Height, ft")
   String heightFt;
 
-  @Schema(name = "Height, cm")
+  @Schema(description = "Height, cm")
   String heightCm;
 
-  @Schema(name = "Weight, lbs")
+  @Schema(description = "Weight, lbs")
   String weightLbs;
 
-  @Schema(name = "Weight, kg")
+  @Schema(description = "Weight, kg")
   String weightKg;
 
-  @Schema(name = "Association")
+  @Schema(description = "Association")
   String association;
 
-  @Schema(name = "Weight class")
+  @Schema(description = "Weight class")
   String weightClass;
 
-  @Schema(name = "Record")
-  FighterRecord record;
+  @Schema(description = "Record")
+  FighterRecord fighterRecord;
 
-  @Schema(name = "Fights")
+  @Schema(description = "Fights")
   List<Fight> fights;
 
   public Fighter postConstruct() {

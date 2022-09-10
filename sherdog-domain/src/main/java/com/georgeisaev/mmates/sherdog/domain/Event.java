@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Schema(name = "Event details")
+@Schema(description = "Event details")
 public class Event {
 
   String id;

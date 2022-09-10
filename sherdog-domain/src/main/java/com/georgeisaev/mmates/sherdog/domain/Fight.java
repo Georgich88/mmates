@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Schema(name = "Fight details")
+@Schema(description = "Fight details")
 public class Fight {
 
   String eventId;

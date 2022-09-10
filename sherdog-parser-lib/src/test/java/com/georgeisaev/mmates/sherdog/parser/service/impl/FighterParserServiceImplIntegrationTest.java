@@ -38,8 +38,8 @@ class FighterParserServiceImplIntegrationTest {
 
     // THEN
     assertNotNull(khamzatChimaev);
-    assertNotNull(khamzatChimaev.getRecord());
-    assertThat(khamzatChimaev.getRecord().getWinsTotals()).isPositive();
+    assertNotNull(khamzatChimaev.getFighterRecord());
+    assertThat(khamzatChimaev.getFighterRecord().getWinsTotals()).isPositive();
   }
 
   @Test
@@ -55,8 +55,8 @@ class FighterParserServiceImplIntegrationTest {
 
     // THEN
     assertNotNull(tyronWoodley);
-    assertNotNull(tyronWoodley.getRecord());
-    assertThat(tyronWoodley.getRecord().getDraws()).isPositive();
+    assertNotNull(tyronWoodley.getFighterRecord());
+    assertThat(tyronWoodley.getFighterRecord().getDraws()).isPositive();
   }
 
   @Test
@@ -72,7 +72,7 @@ class FighterParserServiceImplIntegrationTest {
 
     // THEN
     assertNotNull(fedorEmelianenko);
-    assertNotNull(fedorEmelianenko.getRecord());
-    assertThat(fedorEmelianenko.getRecord().getNc()).isPositive();
+    assertNotNull(fedorEmelianenko.getFighterRecord());
+    assertThat(fedorEmelianenko.getFighterRecord().getNc()).isPositive();
   }
 }

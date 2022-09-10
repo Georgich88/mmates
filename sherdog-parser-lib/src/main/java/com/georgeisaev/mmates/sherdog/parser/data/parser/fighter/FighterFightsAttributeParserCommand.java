@@ -1,13 +1,13 @@
 package com.georgeisaev.mmates.sherdog.parser.data.parser.fighter;
 
 import com.georgeisaev.mmates.common.parser.command.JsopAttributeParserCommand;
+import com.georgeisaev.mmates.common.parser.exception.ParserException;
 import com.georgeisaev.mmates.sherdog.domain.Event;
 import com.georgeisaev.mmates.sherdog.domain.Fight;
 import com.georgeisaev.mmates.sherdog.domain.FightResult;
 import com.georgeisaev.mmates.sherdog.domain.FightType;
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.domain.WinMethod;
-import com.georgeisaev.mmates.sherdog.parser.exception.ParserException;
 import com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

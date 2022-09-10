@@ -48,7 +48,7 @@ public class FighterParserServiceImpl implements FighterParserService {
 
         builder.sherdogUrl(url)
                 .id(defineIdFromSherdogUrl(url))
-                .record(fighterRecord);
+                .fighterRecord(fighterRecord);
 
         return builder
                 .build()
