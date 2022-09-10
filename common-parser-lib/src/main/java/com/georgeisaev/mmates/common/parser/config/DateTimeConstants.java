@@ -20,19 +20,21 @@ public class DateTimeConstants {
   public static final DateTimeFormatter DATE_FORMATTER_MMM_DD_YYYY_2 =
       ofPattern("MMM d, yyyy", Locale.US);
 
-  public static final  DateTimeFormatter DATE_TIME_FORMATTER_MM_SS = new DateTimeFormatterBuilder()
-      .appendPattern("mm:ss")
-      .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-      .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-      .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-      .toFormatter();
+  public static final DateTimeFormatter DATE_TIME_FORMATTER_MM_SS =
+      new DateTimeFormatterBuilder()
+          .appendPattern("mm:ss")
+          .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+          .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+          .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+          .toFormatter();
 
-  public static final  DateTimeFormatter DATE_TIME_FORMATTER_M_SS = new DateTimeFormatterBuilder()
-      .appendPattern("m:ss")
-      .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-      .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-      .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-      .toFormatter();
+  public static final DateTimeFormatter DATE_TIME_FORMATTER_M_SS =
+      new DateTimeFormatterBuilder()
+          .appendPattern("m:ss")
+          .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+          .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+          .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+          .toFormatter();
 
   public static Collection<DateTimeFormatter> dateTimeFormatters() {
     return List.of(

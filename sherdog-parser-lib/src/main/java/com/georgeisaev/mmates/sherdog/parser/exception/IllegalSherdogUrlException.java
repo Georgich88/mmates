@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(value = HttpStatus.CONFLICT)
 public class IllegalSherdogUrlException extends RuntimeException {
 
-    public IllegalSherdogUrlException(String message) {
-        super(message);
-    }
-
+  public IllegalSherdogUrlException(String message) {
+    super(message);
+  }
 }

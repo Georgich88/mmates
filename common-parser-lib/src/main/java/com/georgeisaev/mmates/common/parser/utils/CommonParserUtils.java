@@ -35,7 +35,6 @@ public class CommonParserUtils {
         .get();
   }
 
-
   /**
    * Extracts field value and set it to the object
    *

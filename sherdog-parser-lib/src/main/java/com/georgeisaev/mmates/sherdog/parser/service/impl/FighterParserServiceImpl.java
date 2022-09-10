@@ -30,41 +30,36 @@ import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.def
 @Slf4j
 public class FighterParserServiceImpl implements FighterParserService {
 
+  @Override
+  public Fighter parse(final String url) throws IOException, ParserException {
+    log.info("Start. Parse Fighter from {}", url);
 
-    @Override
-    public Fighter parse(final String url) throws IOException, ParserException {
-        log.info("Start. Parse Fighter from {}", url);
+    val fighterParserCommands =
+        Stream.concat(
+                FighterAttributeParserCommand.availableCommands().stream(),
+                FighterFightsAttributeParserCommand.availableCommands().stream())
+            .toList();
+    val recordParserCommands = FighterRecordAttributeParserCommand.availableCommands();
 
-        val fighterParserCommands =
-                Stream.concat(FighterAttributeParserCommand.availableCommands().stream(),
-                                FighterFightsAttributeParserCommand.availableCommands().stream())
-                        .toList();
-        val recordParserCommands
-                = FighterRecordAttributeParserCommand.availableCommands();
+    val doc = CommonParserUtils.parseDocument(url);
+    val builder = parse(doc, Fighter.builder(), fighterParserCommands);
+    val fighterRecord = parse(doc, FighterRecord.builder(), recordParserCommands).build();
 
-        val doc = CommonParserUtils.parseDocument(url);
-        val builder = parse(doc, Fighter.builder(), fighterParserCommands);
-        val fighterRecord = parse(doc, FighterRecord.builder(), recordParserCommands).build();
+    builder.sherdogUrl(url).id(defineIdFromSherdogUrl(url)).fighterRecord(fighterRecord);
 
-        builder.sherdogUrl(url)
-                .id(defineIdFromSherdogUrl(url))
-                .fighterRecord(fighterRecord);
+    return builder.build().postConstruct();
+  }
 
-        return builder
-                .build()
-                .postConstruct();
-    }
-
-    public <T, C extends JsopAttributeParserCommand<T>> T parse(
-            Document source, T target, Collection<C> commands) {
-        commands.forEach(c -> {
-            try {
-                c.parse(source, target);
-            } catch (Exception e) {
-                log.error(MSG_ERR_CANNOT_PARSE_PROPERTY, c.getAttribute(), target, e);
-            }
+  public <T, C extends JsopAttributeParserCommand<T>> T parse(
+      Document source, T target, Collection<C> commands) {
+    commands.forEach(
+        c -> {
+          try {
+            c.parse(source, target);
+          } catch (Exception e) {
+            log.error(MSG_ERR_CANNOT_PARSE_PROPERTY, c.getAttribute(), target, e);
+          }
         });
-        return target;
-    }
-
+    return target;
+  }
 }

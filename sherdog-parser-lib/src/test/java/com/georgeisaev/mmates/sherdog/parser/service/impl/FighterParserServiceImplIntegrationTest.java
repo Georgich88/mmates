@@ -6,15 +6,13 @@ import com.georgeisaev.mmates.sherdog.parser.service.FighterParserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(classes= {MmatesSherdogParserApplication.class,FighterParserServiceImpl.class})
+@SpringBootTest(classes = {MmatesSherdogParserApplication.class, FighterParserServiceImpl.class})
 class FighterParserServiceImplIntegrationTest {
 
   private static final String KHAMZAT_CHIMAEV_URL =

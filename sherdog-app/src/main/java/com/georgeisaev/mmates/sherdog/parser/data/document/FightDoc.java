@@ -1,6 +1,5 @@
 package com.georgeisaev.mmates.sherdog.parser.data.document;
 
-
 import com.georgeisaev.mmates.sherdog.domain.FightResult;
 import com.georgeisaev.mmates.sherdog.domain.FightType;
 import com.georgeisaev.mmates.sherdog.domain.WinMethod;

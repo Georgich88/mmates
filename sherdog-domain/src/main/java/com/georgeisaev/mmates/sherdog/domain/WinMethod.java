@@ -50,5 +50,4 @@ public enum WinMethod {
     }
     return methodDetails[1].trim();
   }
-
 }

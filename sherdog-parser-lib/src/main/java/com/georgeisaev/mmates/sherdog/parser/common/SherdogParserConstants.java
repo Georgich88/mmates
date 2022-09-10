@@ -5,6 +5,5 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class SherdogParserConstants {
 
-    public static final String BASE_HTTPS_URL = "https://www.sherdog.com";
-
+  public static final String BASE_HTTPS_URL = "https://www.sherdog.com";
 }

@@ -71,5 +71,4 @@ public class Fighter {
     }
     return this;
   }
-
 }

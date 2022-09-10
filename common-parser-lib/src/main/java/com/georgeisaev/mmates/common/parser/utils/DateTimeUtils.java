@@ -35,5 +35,4 @@ public class DateTimeUtils {
     }
     throw new ParserException("Cannot parse minutesSeconds=" + minutesSeconds);
   }
-
 }

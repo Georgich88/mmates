@@ -18,7 +18,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
-import java.text.ParseException;
 
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
@@ -45,5 +44,4 @@ public class FighterController {
   public Publisher<ResponseEntity<Fighter>> parse(@RequestBody String url) throws IOException {
     return Mono.just(ResponseEntity.ok(fighterParserService.parse(url)));
   }
-
 }
