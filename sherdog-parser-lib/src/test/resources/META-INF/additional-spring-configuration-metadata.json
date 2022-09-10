@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "mmates.sherdog.selector.fighter.name",
+      "type": "java.lang.String",
+      "description": "Description for mmates.sherdog.selector.fighter.name."
+    },
+    {
+      "name": "mmates.sherdog.selector.fighter.address.locality",
+      "type": "java.lang.String",
+      "description": "Description for mmates.sherdog.selector.fighter.address.locality."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+plugins {
+    id 'mmates.java-application-conventions'
+}
+
+group = 'com.georgeisaev'
+version = '0.0.1-SNAPSHOT'
+description = 'mmates-sherdog-domain'
+java.sourceCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+
+    // Parsing
+    implementation 'org.jsoup:jsoup:1.15.3'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-webflux-ui:1.6.11'
+
+    // Annotation processors
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    // Test
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+
+    // Annotation test processors
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+}
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    configure(options) {
+        options.encoding = 'UTF-8'
+        options.compilerArgs << '-Amapstruct.defaultComponentModel=spring'
+
+    }
+}
