@@ -19,8 +19,7 @@ import static com.georgeisaev.mmates.sherdog.parser.common.SherdogParserConstant
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public enum FighterParserCommand
-    implements Jsoup2SherdogParserCommand<Fighter.FighterBuilder> {
+public enum FighterParserCommand implements Jsoup2SherdogParserCommand<Fighter.FighterBuilder> {
 
   // name
   NAME("name", ".fighter-info h1[itemprop=\"name\"] .fn"),
