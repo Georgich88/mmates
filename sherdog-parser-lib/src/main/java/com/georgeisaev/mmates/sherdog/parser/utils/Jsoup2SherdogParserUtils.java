@@ -13,17 +13,16 @@ import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.MSG
 @UtilityClass
 public class Jsoup2SherdogParserUtils {
 
-    public static <T, C extends Jsoup2SherdogParserCommand<T>> T applyParserCommands(
-            Document source, T target, Collection<C> commands) {
-        commands.forEach(
-                c -> {
-                    try {
-                        c.parse(source, target);
-                    } catch (Exception e) {
-                        log.error(MSG_ERR_CANNOT_PARSE_PROPERTY, c.getAttribute(), target, e);
-                    }
-                });
-        return target;
-    }
-
+  public static <T, C extends Jsoup2SherdogParserCommand<T>> T applyParserCommands(
+      Document source, T target, Collection<C> commands) {
+    commands.forEach(
+        c -> {
+          try {
+            c.parse(source, target);
+          } catch (Exception e) {
+            log.error(MSG_ERR_CANNOT_PARSE_PROPERTY, c.getAttribute(), target, e);
+          }
+        });
+    return target;
+  }
 }

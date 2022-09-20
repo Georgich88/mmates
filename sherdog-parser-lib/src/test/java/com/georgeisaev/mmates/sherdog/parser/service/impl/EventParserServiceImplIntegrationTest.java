@@ -14,25 +14,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(classes = {MmatesSherdogParserApplication.class, EventParserServiceImpl.class})
 class EventParserServiceImplIntegrationTest {
 
-    private static final String BELLATOR_208_URL =
-            "https://www.sherdog.com/events/Bellator-208-Fedor-vs-Sonnen-69635";
+  private static final String BELLATOR_208_URL =
+      "https://www.sherdog.com/events/Bellator-208-Fedor-vs-Sonnen-69635";
 
-    @Autowired
-    EventParserService eventParserService;
+  @Autowired EventParserService eventParserService;
 
-    @Test
-    @DisplayName("Should parse an event")
-    void shouldParseValidEventUrl() {
+  @Test
+  @DisplayName("Should parse an event")
+  void shouldParseValidEventUrl() {
 
-        // GIVEN
-        assertNotNull(eventParserService);
+    // GIVEN
+    assertNotNull(eventParserService);
 
-        // WHEN
-        final Event event =
-                assertDoesNotThrow(() -> eventParserService.parse(BELLATOR_208_URL));
+    // WHEN
+    final Event event = assertDoesNotThrow(() -> eventParserService.parse(BELLATOR_208_URL));
 
-        // THEN
-        assertNotNull(event);
-    }
-
+    // THEN
+    assertNotNull(event);
+  }
 }

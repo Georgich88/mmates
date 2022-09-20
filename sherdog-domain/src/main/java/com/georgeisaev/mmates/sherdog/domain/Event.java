@@ -24,5 +24,4 @@ public class Event {
   LocalDate date;
   List<Fight> fights;
   String location;
-
 }

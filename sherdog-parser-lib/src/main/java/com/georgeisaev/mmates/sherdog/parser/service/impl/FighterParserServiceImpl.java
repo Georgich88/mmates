@@ -1,14 +1,12 @@
 package com.georgeisaev.mmates.sherdog.parser.service.impl;
 
 import com.georgeisaev.mmates.common.parser.exception.ParserException;
-import com.georgeisaev.mmates.common.parser.utils.CommonParserUtils;
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.domain.FighterRecord;
 import com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterRecordParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.service.FighterParserService;
-import com.georgeisaev.mmates.sherdog.parser.utils.Jsoup2SherdogParserUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -41,7 +39,8 @@ public class FighterParserServiceImpl implements FighterParserService {
     val recordParserCommands = FighterRecordParserCommand.availableCommands();
     val doc = parseDocument(url);
     val builder = applyParserCommands(doc, Fighter.builder(), fighterParserCommands);
-    val fighterRecord = applyParserCommands(doc, FighterRecord.builder(), recordParserCommands).build();
+    val fighterRecord =
+        applyParserCommands(doc, FighterRecord.builder(), recordParserCommands).build();
     builder.sherdogUrl(url).id(defineIdFromSherdogUrl(url)).fighterRecord(fighterRecord);
     val fighter = builder.build().postConstruct();
 
@@ -49,5 +48,4 @@ public class FighterParserServiceImpl implements FighterParserService {
 
     return fighter;
   }
-
 }

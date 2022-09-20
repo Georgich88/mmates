@@ -1,20 +1,16 @@
 package com.georgeisaev.mmates.sherdog.parser.command.event;
 
 import com.georgeisaev.mmates.sherdog.domain.Event;
-import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.parser.command.Jsoup2SherdogParserCommand;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 import java.util.Collection;
 import java.util.List;
 
-import static com.georgeisaev.mmates.sherdog.parser.common.SherdogParserConstants.BASE_HTTPS_URL;
 
 @Slf4j
 @Getter

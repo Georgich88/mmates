@@ -47,6 +47,4 @@ public class SherdogParserUtils {
       return FightResult.NOT_HAPPENED;
     }
   }
-
-
 }
