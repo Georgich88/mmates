@@ -21,10 +21,8 @@ public class Event {
   String sherdogUrl;
   String name;
   Promotion promotion;
-  String ownership;
   LocalDate date;
   List<Fight> fights;
   String location;
-  String venue;
-  String enclosure;
+
 }

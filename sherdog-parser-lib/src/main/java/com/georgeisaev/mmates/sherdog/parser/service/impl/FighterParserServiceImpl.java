@@ -4,24 +4,23 @@ import com.georgeisaev.mmates.common.parser.exception.ParserException;
 import com.georgeisaev.mmates.common.parser.utils.CommonParserUtils;
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.domain.FighterRecord;
-import com.georgeisaev.mmates.sherdog.parser.command.Jsoup2SherdogParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterFightsParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.command.fighter.FighterRecordParserCommand;
 import com.georgeisaev.mmates.sherdog.parser.service.FighterParserService;
+import com.georgeisaev.mmates.sherdog.parser.utils.Jsoup2SherdogParserUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.stream.Stream;
 
-import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.MSG_ERR_CANNOT_PARSE_PROPERTY;
+import static com.georgeisaev.mmates.common.parser.utils.CommonParserUtils.parseDocument;
+import static com.georgeisaev.mmates.sherdog.parser.utils.Jsoup2SherdogParserUtils.applyParserCommands;
 import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.defineIdFromSherdogUrl;
 
 @Service
@@ -40,26 +39,15 @@ public class FighterParserServiceImpl implements FighterParserService {
                 FighterFightsParserCommand.availableCommands().stream())
             .toList();
     val recordParserCommands = FighterRecordParserCommand.availableCommands();
-
-    val doc = CommonParserUtils.parseDocument(url);
-    val builder = parse(doc, Fighter.builder(), fighterParserCommands);
-    val fighterRecord = parse(doc, FighterRecord.builder(), recordParserCommands).build();
-
+    val doc = parseDocument(url);
+    val builder = applyParserCommands(doc, Fighter.builder(), fighterParserCommands);
+    val fighterRecord = applyParserCommands(doc, FighterRecord.builder(), recordParserCommands).build();
     builder.sherdogUrl(url).id(defineIdFromSherdogUrl(url)).fighterRecord(fighterRecord);
+    val fighter = builder.build().postConstruct();
 
-    return builder.build().postConstruct();
+    log.info("End. Parse Fighter from {}", url);
+
+    return fighter;
   }
 
-  public <T, C extends Jsoup2SherdogParserCommand<T>> T parse(
-      Document source, T target, Collection<C> commands) {
-    commands.forEach(
-        c -> {
-          try {
-            c.parse(source, target);
-          } catch (Exception e) {
-            log.error(MSG_ERR_CANNOT_PARSE_PROPERTY, c.getAttribute(), target, e);
-          }
-        });
-    return target;
-  }
 }
