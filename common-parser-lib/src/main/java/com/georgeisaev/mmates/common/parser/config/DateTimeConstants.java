@@ -1,6 +1,6 @@
 package com.georgeisaev.mmates.common.parser.config;
 
-import lombok.experimental.UtilityClass;
+import static java.time.format.DateTimeFormatter.ofPattern;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -8,9 +8,9 @@ import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import lombok.experimental.UtilityClass;
 
-import static java.time.format.DateTimeFormatter.ofPattern;
-
+/** Date and time constants. */
 @UtilityClass
 public class DateTimeConstants {
 

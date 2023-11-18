@@ -32,12 +32,12 @@ public class EventParserServiceImpl implements EventParserService {
    * @throws ParserException if anything related to the parser goes wrong
    */
   @Override
-  public Event parse(String url) throws IOException, ParserException {
+  public Event parse(final String url) throws IOException, ParserException {
     log.info("Start. Parse Event from {}", url);
 
-    val eventParserCommands = EventParserCommand.availableCommands();
+    val commands = EventParserCommand.availableCommands();
     val doc = getDocumentFromUrl(url);
-    val builder = applyParserCommands(doc, Event.builder(), eventParserCommands);
+    val builder = applyParserCommands(doc, Event.builder(), commands);
     builder.sherdogUrl(url).id(defineIdFromSherdogUrl(url));
     val event = builder.build();
 

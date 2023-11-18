@@ -1,5 +1,9 @@
 package com.georgeisaev.mmates.sherdog.parser.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.parser.MmatesSherdogParserApplication;
 import com.georgeisaev.mmates.sherdog.parser.service.FighterParserService;
@@ -8,19 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @SpringBootTest(classes = {MmatesSherdogParserApplication.class, FighterParserServiceImpl.class})
 class FighterParserServiceImplIntegrationTest {
 
-  private static final String KHAMZAT_CHIMAEV_URL =
+  static final String KHAMZAT_CHIMAEV_URL =
       "https://www.sherdog.com/fighter/Khamzat-Chimaev-280021";
-  private static final String TYRON_WOODLEY_URL =
+  static final String TYRON_WOODLEY_URL =
       "https://www.sherdog.com/fighter/Tyron-Woodley-42605";
 
-  private static final String FEDOR_EMELIANENKO_URL =
+  static final String FEDOR_EMELIANENKO_URL =
       "https://www.sherdog.com/fighter/Fedor-Emelianenko-1500";
   @Autowired FighterParserService fighterParserService;
 
