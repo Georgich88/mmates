@@ -3,6 +3,8 @@ package com.georgeisaev.mmates.sherdog.parser.controller;
 import com.georgeisaev.mmates.sherdog.domain.Fighter;
 import com.georgeisaev.mmates.sherdog.parser.service.FighterParserService;
 import com.georgeisaev.mmates.sherdog.parser.service.FighterService;
+import java.io.IOException;
+import java.net.URI;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,9 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.io.IOException;
-import java.net.URI;
 
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)

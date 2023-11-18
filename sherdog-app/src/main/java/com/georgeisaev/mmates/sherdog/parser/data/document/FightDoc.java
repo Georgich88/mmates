@@ -3,13 +3,12 @@ package com.georgeisaev.mmates.sherdog.parser.data.document;
 import com.georgeisaev.mmates.sherdog.domain.FightResult;
 import com.georgeisaev.mmates.sherdog.domain.FightType;
 import com.georgeisaev.mmates.sherdog.domain.WinMethod;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter

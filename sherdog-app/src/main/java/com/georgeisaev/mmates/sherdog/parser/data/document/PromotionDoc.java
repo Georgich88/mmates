@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Document(collection = "mmates_sherdog_promotion")
+@Document(collection = "mmates-sherdog-promotion")
 public class PromotionDoc {
 
   @Id String id;
