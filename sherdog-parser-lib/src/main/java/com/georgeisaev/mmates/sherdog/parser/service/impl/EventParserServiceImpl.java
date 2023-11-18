@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
-import static com.georgeisaev.mmates.common.parser.utils.CommonParserUtils.parseDocument;
+import static com.georgeisaev.mmates.common.parser.utils.CommonParserUtils.getDocumentFromUrl;
 import static com.georgeisaev.mmates.sherdog.parser.utils.Jsoup2SherdogParserUtils.applyParserCommands;
 import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.defineIdFromSherdogUrl;
 
@@ -36,7 +36,7 @@ public class EventParserServiceImpl implements EventParserService {
     log.info("Start. Parse Event from {}", url);
 
     val eventParserCommands = EventParserCommand.availableCommands();
-    val doc = parseDocument(url);
+    val doc = getDocumentFromUrl(url);
     val builder = applyParserCommands(doc, Event.builder(), eventParserCommands);
     builder.sherdogUrl(url).id(defineIdFromSherdogUrl(url));
     val event = builder.build();

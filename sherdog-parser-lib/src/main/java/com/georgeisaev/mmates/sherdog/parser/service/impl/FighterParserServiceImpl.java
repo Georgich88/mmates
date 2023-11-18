@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import static com.georgeisaev.mmates.common.parser.utils.CommonParserUtils.parseDocument;
+import static com.georgeisaev.mmates.common.parser.utils.CommonParserUtils.getDocumentFromUrl;
 import static com.georgeisaev.mmates.sherdog.parser.utils.Jsoup2SherdogParserUtils.applyParserCommands;
 import static com.georgeisaev.mmates.sherdog.parser.utils.SherdogParserUtils.defineIdFromSherdogUrl;
 
@@ -37,7 +37,7 @@ public class FighterParserServiceImpl implements FighterParserService {
                 FighterFightsParserCommand.availableCommands().stream())
             .toList();
     val recordParserCommands = FighterRecordParserCommand.availableCommands();
-    val doc = parseDocument(url);
+    val doc = getDocumentFromUrl(url);
     val builder = applyParserCommands(doc, Fighter.builder(), fighterParserCommands);
     val fighterRecord =
         applyParserCommands(doc, FighterRecord.builder(), recordParserCommands).build();
