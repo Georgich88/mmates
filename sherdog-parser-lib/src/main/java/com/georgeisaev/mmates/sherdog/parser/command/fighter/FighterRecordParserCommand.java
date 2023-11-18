@@ -3,6 +3,7 @@ package com.georgeisaev.mmates.sherdog.parser.command.fighter;
 import com.georgeisaev.mmates.sherdog.domain.FighterRecord;
 import com.georgeisaev.mmates.sherdog.domain.FighterRecordDetails;
 import com.georgeisaev.mmates.sherdog.parser.command.Jsoup2SherdogParserCommand;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.IntConsumer;

@@ -1,0 +1,38 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+  id 'org.springframework.boot' version "${springBootVersion}"
+  id 'io.freefair.lombok' version "${freefairLombokVersion}"
+}
+
+subprojects {
+
+  apply plugin: 'io.freefair.lombok'
+
+
+
+  if (!it.name.startsWith('platform')) {
+    apply plugin: 'java-library'
+  }
+
+  /* Strongly Encapsulate JDK Internals causes some logic (mostly related to serialization and deserialization)
+   to fail when it tries to access internals (often gson deserialization). We use --add-opens as a workaround for now for test.
+   https://docs.oracle.com/en/java/javase/17/migrate/migrating-jdk-8-later-jdk-releases.html#GUID-12F945EB-71D6-46AF-8C3D-D354FD0B1781*/
+  tasks.withType(Test) {
+    jvmArgs '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.nio=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.nio.file=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util.concurrent=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util.regex=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.text=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.time=ALL-UNNAMED',
+            '--add-opens', 'java.security.jgss/sun.security.krb5=ALL-UNNAMED'
+  }
+
+}
+
+
+
