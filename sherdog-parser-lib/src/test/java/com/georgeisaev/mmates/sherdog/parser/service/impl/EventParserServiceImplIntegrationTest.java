@@ -35,6 +35,5 @@ class EventParserServiceImplIntegrationTest {
     assertThat(event.getName()).isNotEmpty();
     assertThat(event.getSherdogUrl()).isNotEmpty();
     assertThat(event.getLocation()).isNotEmpty();
-
   }
 }

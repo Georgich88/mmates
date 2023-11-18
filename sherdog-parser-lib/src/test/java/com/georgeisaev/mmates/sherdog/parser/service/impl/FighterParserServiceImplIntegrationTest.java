@@ -17,8 +17,7 @@ class FighterParserServiceImplIntegrationTest {
 
   static final String KHAMZAT_CHIMAEV_URL =
       "https://www.sherdog.com/fighter/Khamzat-Chimaev-280021";
-  static final String TYRON_WOODLEY_URL =
-      "https://www.sherdog.com/fighter/Tyron-Woodley-42605";
+  static final String TYRON_WOODLEY_URL = "https://www.sherdog.com/fighter/Tyron-Woodley-42605";
 
   static final String FEDOR_EMELIANENKO_URL =
       "https://www.sherdog.com/fighter/Fedor-Emelianenko-1500";
